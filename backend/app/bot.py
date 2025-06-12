@@ -11,7 +11,7 @@ async def courses(update, context):
     await update.message.reply_text(f"Courses:\n{course_list}")
 
 async def webapp(update, context):
-    await update.message.reply_text('Open Daha Mini App: https://your-vercel-mini-app-url')
+    await update.message.reply_text('Open Daha Mini App: https://daha-git-cx3u.vercel.app/')
 
 def setup_bot(app: FastAPI):
     token = os.getenv('BOT_TOKEN')
