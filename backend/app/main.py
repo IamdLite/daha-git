@@ -14,4 +14,4 @@ async def get_courses():
     return COURSES
 
 # Serve frontend (optional for local testing)
-app.mount("/static", StaticFiles(directory="frontend/build"), name="static")
+app.mount("/static", StaticFiles(directory="../frontend/build"), name="static")
