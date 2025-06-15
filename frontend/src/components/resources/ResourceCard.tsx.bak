@@ -1,0 +1,321 @@
+import { Card, CardContent, Typography, Button, Box, Chip, Stack, useTheme } from '@mui/material';
+import { Resource, Subject, Grade, DifficultyLevel } from '../../types';
+
+interface ResourceCardProps {
+  resource: Resource;
+}
+
+const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
+  const theme = useTheme();
+  
+  // Форматирование даты с правильным склонением месяца
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    
+    // Месяцы в родительном падеже
+    const monthsGenitive = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    
+    const month = monthsGenitive[date.getMonth()];
+    return `${day} ${month}`;
+  };
+  
+  const subjectLabels: Record<string, string> = {
+    [Subject.AI]: 'Искусственный интеллект',
+    [Subject.ROBOTICS]: 'Робототехника',
+    [Subject.PROGRAMMING]: 'Программирование',
+    [Subject.CYBERSECURITY]: 'Информационная безопасность',
+    [Subject.ENTREPRENEURSHIP]: 'Предпринимательство',
+    [Subject.FINANCIAL_LITERACY]: 'Финансовая грамотность',
+    [Subject.SCIENCE]: 'Наука',
+  };
+
+  const subjectColors: Record<string, string> = {
+    [Subject.AI]: '#3f51b5',
+    [Subject.ROBOTICS]: '#9c27b0',
+    [Subject.PROGRAMMING]: '#00bfa5',
+    [Subject.CYBERSECURITY]: '#f44336',
+    [Subject.ENTREPRENEURSHIP]: '#ff9800',
+    [Subject.FINANCIAL_LITERACY]: '#2196f3',
+    [Subject.SCIENCE]: '#4caf50',
+  };
+
+  // Добавим объект с метками для классов (без слова "класс")
+  const gradeLabels: Record<string, string> = {
+    [Grade.GRADE_7]: '7',
+    [Grade.GRADE_8]: '8',
+    [Grade.GRADE_9]: '9',
+    [Grade.GRADE_10]: '10',
+    [Grade.GRADE_11]: '11',
+  };
+  
+  // Добавим метки для уровней сложности
+  const difficultyLabels: Record<string, string> = {
+    [DifficultyLevel.BEGINNER]: 'Уровень: начальный',
+    [DifficultyLevel.INTERMEDIATE]: 'Уровень: средний',
+    [DifficultyLevel.ADVANCED]: 'Уровень: продвинутый',
+  };
+
+  // Форматирование даты с правильным склонением месяца
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    
+    // Месяцы в родительном падеже
+    const monthsGenitive = [
+      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    
+    const month = monthsGenitive[date.getMonth()];
+    return `${day} ${month}`;
+  };
+
+  return (
+    <Card sx={{ 
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      transition: 'all 0.3s ease',
+      borderRadius: '8px',
+      overflow: 'visible',
+      backgroundColor: 'white',
+      boxShadow: 'none',
+      border: '1px solid #e0e0e0',
+      '&:hover': {
+        borderColor: theme.palette.primary.main,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)',
+      },
+      position: 'relative',
+      mb: 3
+    }}>
+      {/* Текст "сегодня" в правом углу */}
+      <Box sx={{ 
+        position: 'absolute', 
+        top: 16, 
+        right: 16, 
+        color: theme.palette.text.secondary,
+        fontSize: '0.9rem',
+        fontWeight: 500
+      }}>
+        сегодня
+      </Box>
+
+      <CardContent sx={{ 
+        pt: 3.5,
+        pb: 2, 
+        flexGrow: 1, 
+        px: 3,
+        display: 'flex', 
+        flexDirection: 'column',
+        gap: 1.5
+      }}>
+        {/* Логотип организатора */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+          {resource.organizer && (
+            <Avatar 
+              sx={{ 
+                width: 52, 
+                height: 52, 
+                bgcolor: getOrganizerColor(resource.organizer || ''),
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '1.3rem',
+                mr: 2,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+              }}
+            >
+              {getOrganizerInitial(resource.organizer || '')}
+            </Avatar>
+          )}
+        </Box>
+
+        {/* Заголовок - крупным шрифтом */}
+        <Typography 
+          component="div" 
+          variant="h5" 
+          sx={{ 
+            fontSize: { xs: '1.35rem', sm: '1.5rem' },
+            fontWeight: 700,
+            letterSpacing: '-0.01em',
+            lineHeight: 1.2,
+            color: '#4361ee', // Более яркий синий цвет для заголовка
+            mb: 0.5
+          }}
+        >
+          {resource.title}
+        </Typography>
+        
+        {/* Организатор курса - более заметно */}
+        {resource.organizer && (
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              mb: 1,
+              color: '#616161'
+            }}
+          >
+            в {resource.organizer}
+          </Typography>
+        )}
+
+        {/* Даты как аналог зарплаты */}
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            fontSize: '1.35rem',
+            mb: 2,
+            color: '#000',
+            letterSpacing: '-0.01em'
+          }}
+        >
+          {formatDate(resource.startDate)} — {formatDate(resource.endDate)}
+        </Typography>
+
+        {/* Чипсы для классов и типа */}
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
+          {resource.grades.map((grade) => (
+            <Chip
+              key={grade}
+              label={`${gradeLabels[grade]} класс`}
+              size="medium"
+              sx={{
+                borderRadius: '6px',
+                backgroundColor: '#f5f5f5',
+                color: '#333',
+                px: 1.5,
+                py: 2.5,
+                height: 'auto',
+                mb: 1,
+                fontWeight: 500
+              }}
+            />
+          ))}
+          {resource.difficultyLevel && (
+            <Chip
+              label={difficultyLabels[resource.difficultyLevel]}
+              size="medium"
+              sx={{
+                borderRadius: '6px',
+                backgroundColor: '#f0f7ff',
+                color: '#0066cc',
+                px: 1.5,
+                py: 2.5,
+                height: 'auto',
+                mb: 1,
+                fontWeight: 500
+              }}
+            />
+          )}
+        </Stack>
+
+        {/* Блок "Что делать" с описанием */}
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              mb: 1.5,
+              fontSize: '1.05rem'
+            }}
+          >
+            Что изучать:
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              lineHeight: 1.6,
+              color: '#333333',
+              fontSize: '1rem'
+            }}
+          >
+            {resource.description}
+          </Typography>
+        </Box>
+
+        {/* Блок с предметами */}
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              mb: 1.5,
+              fontSize: '1.05rem'
+            }}
+          >
+            О курсе:
+          </Typography>
+          <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+            {resource.subjects.map((subject) => (
+              <Chip 
+                key={subject} 
+                label={subjectLabels[subject]} 
+                size="medium" 
+                sx={{ 
+                  mb: 0.75,
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  backgroundColor: `${subjectColors[subject]}10`,
+                  color: subjectColors[subject],
+                  height: '32px',
+                  borderRadius: '6px',
+                  '&:hover': {
+                    backgroundColor: `${subjectColors[subject]}20`,
+                  }
+                }}
+              />
+            ))}
+          </Stack>
+        </Box>
+      </CardContent>
+      
+      {/* Кнопка внизу карточки */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', px: 3, pb: 3, mt: 'auto' }}>
+        <Button 
+          variant="contained" 
+          href={resource.url} 
+          target="_blank" 
+          rel="noopener"
+          sx={{ 
+            borderRadius: '4px',
+            px: 4,
+            py: 1,
+            fontWeight: 600,
+            letterSpacing: '0.01em',
+            fontSize: '0.95rem',
+            boxShadow: 'none',
+            backgroundColor: '#000',
+            color: '#fff',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#333',
+              boxShadow: 'none'
+            }
+          }}
+        >
+          Быстрый отклик
+        </Button>
+        
+        <IconButton
+          aria-label="share"
+          sx={{
+            width: 40,
+            height: 40,
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px'
+          }}
+        >
+          <ShareIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </Card>
+  );
+};
+
+export default ResourceCard;
