@@ -31,7 +31,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({ filters, handlers, isMobile
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         backdropFilter: 'blur(10px)',
         overflowY: 'auto',
-        zIndex: 200, // Above Footer, below Header
+        zIndex: 0, // Above Footer, below Header
         p: { xs: 2, md: 3 },
         pr: 3, // Right content padding
         border: 'none',
