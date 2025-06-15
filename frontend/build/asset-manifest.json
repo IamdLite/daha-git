@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/daha/static/css/main.e6c13ad2.css",
+    "main.js": "/daha/static/js/main.159b51d2.js",
+    "static/js/453.7393f7cb.chunk.js": "/daha/static/js/453.7393f7cb.chunk.js",
+    "index.html": "/daha/index.html",
+    "main.e6c13ad2.css.map": "/daha/static/css/main.e6c13ad2.css.map",
+    "main.159b51d2.js.map": "/daha/static/js/main.159b51d2.js.map",
+    "453.7393f7cb.chunk.js.map": "/daha/static/js/453.7393f7cb.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.159b51d2.js"
+  ]
+}
