@@ -1,6 +1,13 @@
-node_modules/  
-dist/
-pycache/ 
-*.pyc 
-.env 
-build/
+# Root .gitignore (covers all subdirs)
+**/node_modules/  # All node_modules folders (anywhere in project)
+**/dist/          # All dist folders  
+**/__pycache__/   # All Python cache folders  
+**/*.pyc          # All compiled Python files  
+**/.env           # All .env files (for security)  
+**/build/         # All build folders (React, Next.js, etc.)  
+
+# Optional extras (commonly ignored)
+.DS_Store         # macOS junk  
+.idea/            # JetBrains IDE  
+.vscode/          # VSCode settings  
+*.log             # Log files  
