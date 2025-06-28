@@ -18,8 +18,9 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material';
-import ScienceIcon from '@mui/icons-material/Science';
+import { Link } from '@mui/material';
 import { useState, useEffect } from 'react';
+import logo from '../../../assets/daha-logo.png'
 
 const Header = () => {
   const theme = useTheme();
@@ -117,28 +118,42 @@ const Header = () => {
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ minHeight: '60px !important' }}>
             {/* Logo */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ScienceIcon
-                sx={{
-                  fontSize: '1.8rem',
-                  mr: 1,
-                  color: theme.palette.primary.main
-                }}
-              />
-              <Typography
-                variant="h6"
-                sx={{
-                  marginTop: '10px',
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 700,
-                  background: `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                DAHA
-              </Typography>
-            </Box>
+{/* Logo Section - Updated */}
+
+<Link href="/" sx={{ textDecoration: 'none'}}>
+<Box sx={{ 
+  display: 'flex', 
+  alignItems: 'center',
+  height: '60px', // Match header height
+  gap: 1, // Space between logo and text
+  cursor: 'pointer'
+}}>
+  <img
+    src={logo}
+    alt="DAHA Logo"
+    style={{ 
+      height: '40px', // Fixed height
+      width: 'auto',  // Maintain aspect ratio
+      maxWidth: '100%', // Prevent overflow
+      objectFit: 'contain', // Ensure image fits
+    }}
+  />
+
+  {/* <Typography
+    variant="h6"
+    sx={{
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 700,
+      background: `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      lineHeight: '1', // Fix vertical alignment
+    }}
+  >
+    DAHA
+  </Typography> */}
+</Box>
+</Link>
 
             {/* Auth Section */}
             <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>

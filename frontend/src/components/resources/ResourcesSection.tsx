@@ -1,4 +1,3 @@
-
 import { Box, Pagination } from '@mui/material';
 import ResourcesList from './ResourcesList';
 import { Resource } from '../../types';
@@ -8,11 +7,13 @@ interface ResourcesSectionProps {
   page: number;
   rowsPerPage: number;
   onPageChange: (page: number) => void;
+  totalOpportunities: number;
+  isLoading?: boolean; // Added isLoading prop
 }
 
-const ResourcesSection: React.FC<ResourcesSectionProps> = ({ resources, page, rowsPerPage, onPageChange }) => {
+const ResourcesSection: React.FC<ResourcesSectionProps> = ({ resources, page, rowsPerPage, onPageChange, totalOpportunities, isLoading }) => {
   const paginatedResources = resources.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-  const pageCount = Math.ceil(resources.length / rowsPerPage);
+  const pageCount = Math.ceil(totalOpportunities / rowsPerPage);
 
   return (
     <Box
@@ -26,7 +27,11 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({ resources, page, ro
         gap: 2,
       }}
     >
-      <ResourcesList resources={paginatedResources} />
+      <ResourcesList
+        resources={paginatedResources}
+        totalOpportunities={totalOpportunities}
+        isLoading={isLoading}
+      />
       {pageCount > 1 && (
         <Pagination
           count={pageCount}

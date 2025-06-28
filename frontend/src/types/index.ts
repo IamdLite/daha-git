@@ -1,45 +1,64 @@
-// Типы для фильтрации
-export enum ResourceType {
-  COURSE = 'course',
+export interface GradeLevel {
+  id: number;
+  level: number;
 }
 
-export enum Subject {
-  AI = 'ai',
-  ROBOTICS = 'robotics',
-  PROGRAMMING = 'programming',
-  CYBERSECURITY = 'cybersecurity',
-  ENTREPRENEURSHIP = 'entrepreneurship',
-  FINANCIAL_LITERACY = 'financial_literacy',
-  SCIENCE = 'science',
+export interface Category {
+  id: number;
+  name: string;
 }
 
-export enum Grade {
-  GRADE_7 = '7',
-  GRADE_8 = '8',
-  GRADE_9 = '9',
-  GRADE_10 = '10',
-  GRADE_11 = '11',
-}
-
-// Уровень сложности курса
-export enum DifficultyLevel {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced',
-}
-
-// Тип ресурса (только курсы)
 export interface Resource {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  type: ResourceType;
-  subjects: Subject[];
-  grades: Grade[];
-  startDate: string;
-  endDate: string;
   url: string;
-  imageUrl?: string;
-  organizer?: string;
-  difficultyLevel?: DifficultyLevel;
+  provider: string;
+  level: string; // e.g., "Начальный"
+  created_at: string;
+  updated_at: string;
+  category: Category;
+  grades: GradeLevel[];  // Changed from number[] to GradeLevel[]
+  startDate?: string;
+  endDate?: string;
+  gradesEnum?: string[]; // e.g., ["7", "8"]
+  subjectEnum?: string; // e.g., "Программирование"
 }
+
+export interface FilterState {
+  selectedSubjects: string[];
+  selectedDifficulty: string[];
+  selectedGrades: string[];
+  selectedType: string | null;
+  searchQuery: string;
+  page: number;
+  rowsPerPage: number;
+}
+
+export interface FilterHandlers {
+  handleSubjectsChange: (subjects: string[]) => void;
+  handleDifficultyChange: (difficulty: string[]) => void;
+  handleGradesChange: (grades: string[]) => void;
+  handleTypeChange: (type: string | null) => void;
+  handleSearchChange: (query: string) => void;
+  handleResetFilters: () => void;
+  handlePageChange: (page: number) => void;
+}
+
+export type Subject =
+  | 'Программирование'
+  | 'Математика'
+  | 'Искусственный интеллект'
+  | 'Физика'
+  | 'Химия'
+  | 'Робототехника'
+  | 'Информационная безопасность'
+  | 'Предпринимательство'
+  | 'Финансовая грамотность'
+  | 'Наука'; // Expanded to match ResourceCard
+
+export const Grade = ['7', '8', '9', '10', '11'] as const;
+export type Grade = typeof Grade[number];
+
+export const DifficultyLevel = ['Начальный', 'Средний', 'Продвинутый'] as const;
+export type DifficultyLevel = typeof DifficultyLevel[number];

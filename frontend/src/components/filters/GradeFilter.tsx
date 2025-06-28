@@ -21,13 +21,13 @@ const GradeFilter: React.FC<GradeFilterProps> = ({ selectedGrades, onChange }) =
     }
   };
 
-  // Изменяем надписи, убирая слово "класс"
-  const gradeLabels: Record<string, string> = {
-    [Grade.GRADE_7]: '7',
-    [Grade.GRADE_8]: '8',
-    [Grade.GRADE_9]: '9',
-    [Grade.GRADE_10]: '10',
-    [Grade.GRADE_11]: '11',
+  // Define grade labels
+  const gradeLabels: Record<Grade, string> = {
+    '7': '7',
+    '8': '8',
+    '9': '9',
+    '10': '10',
+    '11': '11',
   };
 
   return (
@@ -50,11 +50,11 @@ const GradeFilter: React.FC<GradeFilterProps> = ({ selectedGrades, onChange }) =
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          gap: 0.8, // Уменьшаем отступ между элементами
-          flexWrap: 'nowrap' // Запрещаем перенос на новую строку
+          gap: 0.8,
+          flexWrap: 'nowrap'
         }}
       >
-        {Object.values(Grade).map((grade) => {
+        {Grade.map((grade) => {
           const isSelected = selectedGrades.includes(grade);
           return (
             <Box

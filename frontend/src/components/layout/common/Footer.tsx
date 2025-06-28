@@ -1,16 +1,15 @@
-
 import { Box, Container, Typography, Link, Divider, useTheme, Stack, IconButton } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import EmailIcon from '@mui/icons-material/Email';
 import { useEffect, useRef } from 'react';
+import logo from '../../../assets/daha-logo.png';
 
 const Footer: React.FC = () => {
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
   const footerRef = useRef<HTMLElement>(null);
 
-  // Debug footer height
   useEffect(() => {
     if (footerRef.current) {
       console.log('Footer height:', footerRef.current.offsetHeight);
@@ -24,15 +23,16 @@ const Footer: React.FC = () => {
       key="unique-footer"
       data-testid="footer"
       sx={{
-        position: 'relative', // Stays at page bottom
+        position: 'relative',
         py: 3,
         mt: 'auto',
         backgroundColor: theme.palette.grey[50],
         borderTop: `1px solid ${theme.palette.divider}`,
-        zIndex: 1000, // Above page content, below FiltersPanel
+        zIndex: 1000,
       }}
     >
       <Container maxWidth="lg">
+        {/* Logo and Links Row */}
         <Box
           sx={{
             display: 'flex',
@@ -42,6 +42,21 @@ const Footer: React.FC = () => {
             mb: 2,
           }}
         >
+          {/* Clickable Logo */}
+          <Link href="/" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+            <img
+              src={logo}
+              alt="DAHA Logo"
+              style={{
+                height: '40px',
+                width: 'auto',
+                maxWidth: '100%',
+                objectFit: 'contain',
+              }}
+            />
+          </Link>
+
+          {/* Navigation Links */}
           <Box
             sx={{
               display: 'flex',
@@ -49,18 +64,6 @@ const Footer: React.FC = () => {
               mb: { xs: 2, md: 0 },
             }}
           >
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 700,
-                background: `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mr: 4,
-              }}
-            >
-              DAHA
-            </Typography>
             <Stack direction="row" spacing={2} sx={{ display: { xs: 'none', md: 'flex' } }}>
               <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: '0.85rem' }}>
                 О нас
@@ -73,6 +76,8 @@ const Footer: React.FC = () => {
               </Link>
             </Stack>
           </Box>
+
+          {/* Social Icons */}
           <Stack direction="row" spacing={1}>
             <IconButton size="small" aria-label="github" sx={{ color: theme.palette.text.secondary }}>
               <GitHubIcon fontSize="small" />
@@ -85,7 +90,10 @@ const Footer: React.FC = () => {
             </IconButton>
           </Stack>
         </Box>
+
         <Divider sx={{ my: 2, opacity: 0.6 }} />
+
+        {/* Copyright */}
         <Box
           sx={{
             display: 'flex',

@@ -15,6 +15,7 @@
     "@types/jest": "^27.5.2",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "axios": "^1.10.0",
     "icons-material": "^0.0.1-security",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
@@ -39,9 +40,9 @@
       "react-app",
       "react-app/jest"
     ],
-      "rules": {
-    "@typescript-eslint/no-unused-vars": "warn"  
-  }
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
   },
   "browserslist": {
     "production": [

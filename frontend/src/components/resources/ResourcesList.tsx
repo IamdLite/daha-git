@@ -1,13 +1,14 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress, Fade } from '@mui/material';
 import ResourceCard from './ResourceCard';
 import { Resource } from '../../types';
 
 interface ResourcesListProps {
   resources: Resource[];
+  isLoading?: boolean;
+  totalOpportunities: number; // Required prop for total count across all pages
 }
 
-const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
-
+const ResourcesList: React.FC<ResourcesListProps> = ({ resources, isLoading = false, totalOpportunities }) => {
   return (
     <Box>
       <Box sx={{ 
@@ -25,11 +26,27 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
             fontWeight: 600
           }}
         >
-          Найдено возможностей: {resources.length}
+          Найдено возможностей: {totalOpportunities}
         </Typography>
       </Box>
-      
-      {resources.length > 0 ? (
+
+      {isLoading ? (
+        <Fade in={isLoading}>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '200px',
+            flexDirection: 'column',
+            gap: 2
+          }}>
+            <CircularProgress size={40} />
+            <Typography variant="body2" color="text.secondary">
+              Загрузка возможностей...
+            </Typography>
+          </Box>
+        </Fade>
+      ) : resources.length > 0 ? (
         <Box sx={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr', 
