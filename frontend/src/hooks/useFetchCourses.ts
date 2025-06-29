@@ -26,7 +26,6 @@ export const useFetchCourses = () => {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
-          withCredentials: true, // Include credentials if needed
         });
 
         console.log('Courses API Response:', response.data);

@@ -54,7 +54,6 @@ export const useFilters = () => {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
-          withCredentials: true,
         });
 
         console.log('API Response:', response.data);
