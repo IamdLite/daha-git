@@ -49,11 +49,24 @@ export const useFilters = () => {
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
         console.log('Fetching from:', `${apiUrl}/api/courses`);
         
-        const response = await axios.get<ApiResponse>(`${apiUrl}/api/courses?limit=100`, {
+        const api  = axios.create({
+          baseURL: apiUrl,
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
+
+        });
+
+        api.interceptors.request.use(config => {
+          if (config.url?.startsWith('http://')) {
+            config.url = config.url.replace('http://', 'https://');
+          }
+          return config;
+        });
+
+        const response = await api.get<ApiResponse>('/api/courses', {
+          params: { limit: 100}
         });
 
         console.log('API Response:', response.data);
