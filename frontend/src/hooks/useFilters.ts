@@ -46,7 +46,8 @@ export const useFilters = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        // const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const apiUrl = 'https://daha.linkpc.net'
         console.log('Fetching from:', `${apiUrl}/api/courses`);
         
         const api  = axios.create({
