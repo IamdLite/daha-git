@@ -15,39 +15,59 @@ const Login = () => {
   const [emailError, setEmailError] = React.useState('');
   const [passwordError, setPasswordError] = React.useState('');
 
-  // Redirect if already logged in
   React.useEffect(() => {
     if (isAuthenticated()) {
       navigate('/home');
     }
   }, [navigate]);
 
-  // Email validation regex (basic)
+  // Improved email regex: ensures something@domain.tld (basic domain validation)
   const validateEmail = (email: string) => {
-    // Simple RFC 5322 compliant regex
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // This regex requires a domain with at least one dot and valid TLD characters
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
     return re.test(email);
   };
 
-  // Password validation: at least 6 characters (example)
   const validatePassword = (password: string) => {
     return password.length >= 6;
+  };
+
+  // Real-time validation handlers
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+
+    if (!value) {
+      setEmailError('Email is required');
+    } else if (!validateEmail(value)) {
+      setEmailError('Please enter a valid email address with domain');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+
+    if (!value) {
+      setPasswordError('Password is required');
+    } else if (!validatePassword(value)) {
+      setPasswordError('Password must be at least 6 characters');
+    } else {
+      setPasswordError('');
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Reset errors
-    setEmailError('');
-    setPasswordError('');
-
+    // Final validation before submit
     let valid = true;
 
     if (!email) {
       setEmailError('Email is required');
       valid = false;
     } else if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError('Please enter a valid email address with domain');
       valid = false;
     }
 
@@ -68,8 +88,6 @@ const Login = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Here you would normally call your API to authenticate
 
       localStorage.setItem('isAuthenticated', 'true');
       if (rememberMe) {
@@ -95,6 +113,12 @@ const Login = () => {
       if (savedEmail) {
         setEmail(savedEmail);
         setRememberMe(true);
+        // Also validate on load
+        if (!validateEmail(savedEmail)) {
+          setEmailError('Please enter a valid email address with domain');
+        } else {
+          setEmailError('');
+        }
       }
     }
   }, []);
@@ -111,9 +135,7 @@ const Login = () => {
               DAHA Admin Portal
             </span>
           </div>
-          <span className="xl:text-xl font-semibold">
-            Hello, 👋 Welcome Back!
-          </span>
+          <span className="xl:text-xl font-semibold">Hello, 👋 Welcome Back!</span>
 
           <form onSubmit={handleLogin} className="w-full flex flex-col items-stretch gap-3">
             <label className="input input-bordered min-w-full flex flex-col gap-1">
@@ -134,13 +156,11 @@ const Login = () => {
                   }`}
                   placeholder="Email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => handleEmailChange(e.target.value)}
                   required
                 />
               </div>
-              {emailError && (
-                <span className="text-error text-xs ml-6">{emailError}</span>
-              )}
+              {emailError && <span className="text-error text-xs ml-6">{emailError}</span>}
             </label>
 
             <label className="input input-bordered flex flex-col gap-1">
@@ -164,13 +184,11 @@ const Login = () => {
                   }`}
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
                   required
                 />
               </div>
-              {passwordError && (
-                <span className="text-error text-xs ml-6">{passwordError}</span>
-              )}
+              {passwordError && <span className="text-error text-xs ml-6">{passwordError}</span>}
             </label>
 
             <div className="flex items-center justify-between">
