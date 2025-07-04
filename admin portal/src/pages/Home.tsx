@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import TopDealsBox from '../components/topCoursesBox/TopCoursesBox';
 import ChartBox from '../components/charts/ChartBox';
 import {
