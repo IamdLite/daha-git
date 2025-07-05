@@ -1,7 +1,12 @@
 import datetime
+from datetime import date
 from typing import Optional, List
 from sqlmodel import SQLModel
 from .models import UserRole, CourseLevel, Grade, Category, Course, User
+
+
+class CourseCount(SQLModel):
+    total: int
 
 class GradeRead(SQLModel):
     id: int
@@ -31,6 +36,10 @@ class CourseBase(SQLModel):
     category_id: int
     level: CourseLevel
     grade_ids: List[int]
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
 
 class CourseCreate(CourseBase):
     pass
@@ -42,6 +51,8 @@ class CourseRead(SQLModel):
     url: str
     provider: str
     level: CourseLevel
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
     category: "CategoryRead"
@@ -59,6 +70,8 @@ class CourseUpdate(SQLModel):
     category_id: Optional[int] = None
     level: Optional[CourseLevel] = None
     grade: Optional[Grade] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class UserBase(SQLModel):

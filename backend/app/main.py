@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from typing import List, Optional
+from datetime import date
 
 from .database import get_session, create_db_and_tables
 from .models import Course, User, Grade
@@ -31,6 +32,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    #pass
 
 @app.post("/api/courses/", response_model=schemas.CourseRead)
 def create_course(course: schemas.CourseCreate, session: Session = Depends(get_session)):
@@ -40,8 +42,11 @@ def create_course(course: schemas.CourseCreate, session: Session = Depends(get_s
         url=course.url,
         provider=course.provider,
         category_id=course.category_id,
-        level=course.level
+        level=course.level,
+        start_date = course.start_date,
+        end_date = course.end_date
     )
+
     grades = session.exec(select(Grade).where(Grade.id.in_(course.grade_ids))).all()
     if len(grades) != len(course.grade_ids):
         raise HTTPException(status_code=404, detail="One or more grade IDs not found")
@@ -53,12 +58,22 @@ def create_course(course: schemas.CourseCreate, session: Session = Depends(get_s
 
 @app.get("/api/courses/", response_model=List[schemas.CourseReadWithCategory])
 def read_courses(
-        session: Session = Depends(get_session),
-        category_id: Optional[int] = None,
-        level: Optional[schemas.CourseLevel] = None,
-        grade_id: Optional[int] = None,
-        skip: int = 0,
-        limit: int = Query(default=10, le=100)
+    session: Session = Depends(get_session),
+    category_id: Optional[int] = None,
+    level: Optional[schemas.CourseLevel] = None,
+    grade_id: Optional[int] = None,
+
+    skip: int = Query(
+        default=0,
+        ge=0,
+        description="Number of items to skip from the start (offset)."
+    ),
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100,
+        description="Maximum number of items to return per page."
+    )
 ):
     try:
         query = select(Course)
@@ -68,12 +83,46 @@ def read_courses(
             query = query.where(Course.level == level)
         if grade_id:
             query = query.join(Course.grades).where(Grade.id == grade_id)
-
         courses = session.exec(query.offset(skip).limit(limit)).all()
         return courses
     except Exception as e:
         logger.exception(f"An unexpected error occurred while reading courses: {e}")
         raise HTTPException(status_code=500, detail="An internal server error occurred.")
+
+@app.get("/api/courses/count", response_model=schemas.CourseCount)
+def read_courses(
+    session: Session = Depends(get_session),
+    category_id: Optional[int] = None,
+    level: Optional[schemas.CourseLevel] = None,
+    grade_id: Optional[int] = None,
+
+    skip: int = Query(
+        default=0,
+        ge=0,
+        description="Number of items to skip from the start (offset)."
+    ),
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100,
+        description="Maximum number of items to return per page."
+    )
+):
+    try:
+        query = select(Course)
+        if category_id:
+            query = query.where(Course.category_id == category_id)
+        if level:
+            query = query.where(Course.level == level)
+        if grade_id:
+            query = query.join(Course.grades).where(Grade.id == grade_id)
+        courses = session.exec(query.offset(skip).limit(limit)).all()
+        total_count = len(courses)
+        return schemas.CourseCount(total=total_count)
+    except Exception as e:
+        logger.exception(f"An unexpected error occurred while reading courses: {e}")
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
+
 
 @app.get("/api/courses/{course_id}", response_model=schemas.CourseReadWithCategory)
 def read_course(course_id: int, session: Session = Depends(get_session)):
@@ -113,3 +162,4 @@ def update_user_filters(filters: schemas.SavedFilters, session: Session = Depend
     session.commit()
     session.refresh(user)
     return user
+

@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 
 from sqlalchemy.dialects.postgresql import JSON
@@ -68,6 +68,9 @@ class Course(SQLModel, table=True):
 
     level: CourseLevel
     category_id: int = Field(foreign_key="category.id")
+
+    start_date: Optional[date] = Field(default=None, index=True)
+    end_date: Optional[date] = Field(default=None, index=True)
 
     created_at: datetime = Field(
         default=None,
