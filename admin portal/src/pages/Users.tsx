@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { HiOutlineEye, HiOutlinePencilSquare, HiOutlineTrash, HiOutlineCheck, HiOutlineXMark } from 'react-icons/hi2';
 import AddData from '../components/AddData';
-import { Category, Grade, User, fetchUsers, updateUserPreferences, deleteUser, fetchCategories, fetchGrades } from '../data/users';
+import { Category, Grade, User, fetchUsers, deleteUser, fetchCategories, fetchGrades } from '../data/users';
 
 const Users = () => {
   const [isOpen, setIsOpen] = useState(false);
