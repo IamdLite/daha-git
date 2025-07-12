@@ -1,5 +1,5 @@
 // src/pages/Courses.tsx
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
 import toast from 'react-hot-toast';

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -84,7 +84,7 @@ const Users = () => {
 
       console.log('Submitting user preferences:', preferences);
 
-      const updatedUser = await updateUserPreferences(preferences);
+     // const updatedUser = await updateUserPreferences(preferences);
       toast.success('Пользователь обновлен!');
       setIsOpen(false);
       setEditingUser(null);

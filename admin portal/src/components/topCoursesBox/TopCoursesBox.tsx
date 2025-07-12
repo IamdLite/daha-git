@@ -1,9 +1,9 @@
-import React from 'react';
+//import React from 'react';
 import toast from 'react-hot-toast';
 import { topCoursesData, TopCourse } from '../../data/topCourses';
 
 const TopCoursesBox = () => {
-  const tempTotalEntries = [1, 2, 3, 4, 5, 6, 7];
+  //const tempTotalEntries = [1, 2, 3, 4, 5, 6, 7];
 
   return (
     <div className="w-full p-0 m-0 flex flex-col items-stretch gap-6 xl:gap-4 2xl:gap-9">
@@ -11,7 +11,7 @@ const TopCoursesBox = () => {
         Популярные курсы
       </span>
       <div className="w-full flex flex-col items-stretch gap-3">
-        {topCoursesData.map((course: TopCourse, index: number) => (
+        {topCoursesData.map((course: TopCourse) => (
           <button
             onClick={() => toast(`Выбран курс: ${course.title}`, { icon: '📚' })}
             key={course.id}
