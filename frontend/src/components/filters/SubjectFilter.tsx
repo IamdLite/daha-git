@@ -1,3 +1,12 @@
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import BoltIcon from "@mui/icons-material/Bolt";
+import BuildIcon from "@mui/icons-material/Build";
+import BusinessIcon from "@mui/icons-material/Business";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import CodeIcon from "@mui/icons-material/Code";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import ScienceIcon from "@mui/icons-material/Science";
+import SecurityIcon from "@mui/icons-material/Security";
 import {
   FormControl,
   FormLabel,
@@ -6,18 +15,8 @@ import {
   Stack,
   Typography,
   Avatar,
-} from '@mui/material';
-import CodeIcon from '@mui/icons-material/Code';
-import CalculateIcon from '@mui/icons-material/Calculate';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import BoltIcon from '@mui/icons-material/Bolt';
-import ScienceIcon from '@mui/icons-material/Science';
-import BuildIcon from '@mui/icons-material/Build';
-import SecurityIcon from '@mui/icons-material/Security';
-import BusinessIcon from '@mui/icons-material/Business';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import ExperimentIcon from '@mui/icons-material/Science';
-import { Subject } from '../../types';
+} from "@mui/material";
+import { Subject } from "../../types";
 
 interface SubjectFilterProps {
   selectedSubjects: string[];
@@ -25,16 +24,16 @@ interface SubjectFilterProps {
 }
 
 const subjects: Subject[] = [
-  'Программирование',
-  'Математика',
-  'Искусственный интеллект',
-  'Физика',
-  'Химия',
-  'Робототехника',
-  'Информационная безопасность',
-  'Предпринимательство',
-  'Финансовая грамотность',
-  'Наука',
+  "Программирование",
+  "Математика",
+  "Искусственный интеллект",
+  "Физика",
+  "Химия",
+  "Робототехника",
+  "Информационная безопасность",
+  "Предпринимательство",
+  "Финансовая грамотность",
+  "Наука",
 ]; // All Subject values, adjust if API subset needed
 
 const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChange }) => {
@@ -49,54 +48,54 @@ const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChang
   };
 
   const subjectLabels: Record<Subject, string> = {
-    Программирование: 'Программирование',
-    Математика: 'Математика',
-    'Искусственный интеллект': 'Искусственный интеллект',
-    Физика: 'Физика',
-    Химия: 'Химия',
-    Робототехника: 'Робототехника',
-    'Информационная безопасность': 'Информационная безопасность',
-    Предпринимательство: 'Предпринимательство',
-    'Финансовая грамотность': 'Финансовая грамотность',
-    Наука: 'Наука',
+    Программирование: "Программирование",
+    Математика: "Математика",
+    "Искусственный интеллект": "Искусственный интеллект",
+    Физика: "Физика",
+    Химия: "Химия",
+    Робототехника: "Робототехника",
+    "Информационная безопасность": "Информационная безопасность",
+    Предпринимательство: "Предпринимательство",
+    "Финансовая грамотность": "Финансовая грамотность",
+    Наука: "Наука",
   };
 
   const subjectIcons: Record<Subject, React.ReactNode> = {
     Программирование: <CodeIcon fontSize="small" />,
     Математика: <CalculateIcon fontSize="small" />,
-    'Искусственный интеллект': <PsychologyIcon fontSize="small" />,
+    "Искусственный интеллект": <PsychologyIcon fontSize="small" />,
     Физика: <BoltIcon fontSize="small" />,
     Химия: <ScienceIcon fontSize="small" />,
     Робототехника: <BuildIcon fontSize="small" />,
-    'Информационная безопасность': <SecurityIcon fontSize="small" />,
+    "Информационная безопасность": <SecurityIcon fontSize="small" />,
     Предпринимательство: <BusinessIcon fontSize="small" />,
-    'Финансовая грамотность': <AccountBalanceIcon fontSize="small" />,
-    Наука: <ExperimentIcon fontSize="small" />,
+    "Финансовая грамотность": <AccountBalanceIcon fontSize="small" />,
+    Наука: <ScienceIcon fontSize="small" />,
   };
 
   const subjectColors: Record<Subject, string> = {
-    Программирование: '#1976d2',
-    Математика: '#4caf50',
-    'Искусственный интеллект': '#f44336',
-    Физика: '#ff9800',
-    Химия: '#9c27b0',
-    Робототехника: '#9c27b0',
-    'Информационная безопасность': '#f44336',
-    Предпринимательство: '#ff9800',
-    'Финансовая грамотность': '#2196f3',
-    Наука: '#4caf50',
+    Программирование: "#1976d2",
+    Математика: "#4caf50",
+    "Искусственный интеллект": "#f44336",
+    Физика: "#ff9800",
+    Химия: "#9c27b0",
+    Робототехника: "#9c27b0",
+    "Информационная безопасность": "#f44336",
+    Предпринимательство: "#ff9800",
+    "Финансовая грамотность": "#2196f3",
+    Наука: "#4caf50",
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: "100%" }}>
       <FormLabel
         component="legend"
         sx={{
           fontWeight: 600,
-          fontSize: '1rem',
+          fontSize: "1rem",
           color: theme.palette.text.primary,
           mb: 1.5,
-          '&.Mui-focused': {
+          "&.Mui-focused": {
             color: theme.palette.text.primary,
           },
         }}
@@ -111,24 +110,24 @@ const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChang
               key={subject}
               onClick={() => handleClick(subject)}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                display: "flex",
+                alignItems: "center",
+                padding: "8px 12px",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
                 backgroundColor: isSelected
                   ? `${subjectColors[subject]}10`
                   : theme.palette.grey[50],
                 border: isSelected
                   ? `1px solid ${subjectColors[subject]}30`
                   : `1px solid ${theme.palette.divider}`,
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: isSelected
                     ? `${subjectColors[subject]}20`
                     : theme.palette.grey[100],
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
                 },
               }}
             >
@@ -139,8 +138,8 @@ const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChang
                   mr: 1.5,
                   backgroundColor: isSelected
                     ? subjectColors[subject]
-                    : 'rgba(0, 0, 0, 0.08)',
-                  color: isSelected ? '#fff' : theme.palette.text.secondary,
+                    : "rgba(0, 0, 0, 0.08)",
+                  color: isSelected ? "#fff" : theme.palette.text.secondary,
                 }}
               >
                 {subjectIcons[subject]}
@@ -148,7 +147,7 @@ const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChang
               <Typography
                 sx={{
                   fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontSize: "0.95rem",
                   color: isSelected
                     ? subjectColors[subject]
                     : theme.palette.text.primary,
@@ -162,7 +161,7 @@ const SubjectFilter: React.FC<SubjectFilterProps> = ({ selectedSubjects, onChang
                   sx={{
                     width: 12,
                     height: 12,
-                    borderRadius: '50%',
+                    borderRadius: "50%",
                     backgroundColor: subjectColors[subject],
                     ml: 1,
                   }}

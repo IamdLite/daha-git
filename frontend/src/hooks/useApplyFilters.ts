@@ -1,9 +1,9 @@
-import { Resource } from '../types';
-import { FilterState } from '../hooks/useFilters';
+import { FilterState } from "../hooks/useFilters";
+import { Resource } from "../types";
 
 export const useApplyFilters = (resources: Resource[], filters: FilterState): Resource[] => {
-  console.log('useApplyFilters Input Resources:', resources);
-  console.log('useApplyFilters Filters:', filters);
+  console.log("useApplyFilters Input Resources:", resources);
+  console.log("useApplyFilters Filters:", filters);
 
   let result = [...resources];
 
@@ -11,14 +11,14 @@ export const useApplyFilters = (resources: Resource[], filters: FilterState): Re
     result = result.filter((resource) =>
       filters.selectedSubjects.includes(resource.category.name)
     );
-    console.log('After Subject Filter:', result);
+    console.log("After Subject Filter:", result);
   }
 
   if (filters.selectedDifficulty.length > 0) {
     result = result.filter((resource) =>
       resource.level && filters.selectedDifficulty.includes(resource.level)
     );
-    console.log('After Difficulty Filter:', result);
+    console.log("After Difficulty Filter:", result);
   }
 
   if (filters.selectedGrades.length > 0) {
@@ -27,7 +27,7 @@ export const useApplyFilters = (resources: Resource[], filters: FilterState): Re
         filters.selectedGrades.includes(grade.toString())
       )
     );
-    console.log('After Grades Filter:', result);
+    console.log("After Grades Filter:", result);
   }
 
   if (filters.selectedType) {
@@ -35,16 +35,16 @@ export const useApplyFilters = (resources: Resource[], filters: FilterState): Re
     result = result.filter((resource: any) =>
       resource.type === filters.selectedType
     );
-    console.log('After Type Filter:', result);
+    console.log("After Type Filter:", result);
   }
 
   if (filters.searchQuery) {
     result = result.filter((resource) =>
       resource.title.toLowerCase().includes(filters.searchQuery.toLowerCase())
     );
-    console.log('After Search Filter:', result);
+    console.log("After Search Filter:", result);
   }
 
-  console.log('useApplyFilters Final Result:', result);
+  console.log("useApplyFilters Final Result:", result);
   return result;
 };

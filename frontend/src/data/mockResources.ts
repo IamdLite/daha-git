@@ -4,42 +4,45 @@
 // export const mockResources: Resource[] = [  {    id: '1',    title: 'Основы машинного обучения и нейронных сетей',    description: 'Ведут специалисты из Яндекса с реальными кейсами из индустрии.',    type: ResourceType.COURSE,    subjects: [Subject.AI],    grades: [Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-15',    endDate: '2026-01-20',    url: 'https://practicum.yandex.ru/',    imageUrl: 'https://placehold.co/100x100?text=AI',    organizer: 'Яндекс',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '2',    title: 'Python для искусственного интеллекта',    description: 'Поможет подготовиться к участию в олимпиадах по программированию.',    type: ResourceType.COURSE,    subjects: [Subject.AI, Subject.PROGRAMMING],    grades: [Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-01',    endDate: '2026-02-28',    url: 'https://stepik.org/',    imageUrl: 'https://placehold.co/100x100?text=Python+AI',    organizer: 'Сириус',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '3',    title: 'Робототехника для начинающих',    description: 'Включает практические занятия со сборкой реальных роботов.',    type: ResourceType.COURSE,    subjects: [Subject.ROBOTICS],    grades: [Grade.GRADE_7, Grade.GRADE_8, Grade.GRADE_9],    startDate: '2025-09-01',    endDate: '2025-12-20',    url: 'https://robbo.ru/',    imageUrl: 'https://placehold.co/100x100?text=Robotics',    organizer: 'Иннополис',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '4',    title: 'Программирование микроконтроллеров Arduino',    description: 'После курса сможешь создавать собственные устройства умного дома.',    type: ResourceType.COURSE,    subjects: [Subject.ROBOTICS, Subject.PROGRAMMING],    grades: [Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10],    startDate: '2025-10-05',    endDate: '2026-02-10',    url: 'https://amperka.ru/',    imageUrl: 'https://placehold.co/100x100?text=Arduino',    organizer: 'Сколтех',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '5',    title: 'Разработка игр на Unity',    description: 'Возможность добавить проекты в портфолио для будущих работодателей.',    type: ResourceType.COURSE,    subjects: [Subject.PROGRAMMING],    grades: [Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-15',    endDate: '2026-01-30',    url: 'https://unity.com/learn',    imageUrl: 'https://placehold.co/100x100?text=Unity',    organizer: 'VK',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '6',    title: 'Основы кибербезопасности',    description: 'Преподают действующие эксперты по информационной безопасности.',    type: ResourceType.COURSE,    subjects: [Subject.CYBERSECURITY],    grades: [Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-10',    endDate: '2025-12-15',    url: 'https://securitytrainings.ru/',    imageUrl: 'https://placehold.co/100x100?text=Security',    organizer: 'СберКибер',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '7',    title: 'Этичный хакинг и тестирование на проникновение',    description: 'Помогает развить аналитическое мышление и внимание к деталям.',    type: ResourceType.COURSE,    subjects: [Subject.CYBERSECURITY, Subject.PROGRAMMING],    grades: [Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-20',    endDate: '2026-02-15',    url: 'https://skillbox.ru/',    imageUrl: 'https://placehold.co/100x100?text=Hacking',    organizer: 'Лаборатория Касперского',    difficultyLevel: DifficultyLevel.ADVANCED,  },  {    id: '8',    title: 'Предпринимательство для школьников',    description: 'Возможность запустить свой первый бизнес-проект под наставничеством.',    type: ResourceType.COURSE,    subjects: [Subject.ENTREPRENEURSHIP],    grades: [Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-05',    endDate: '2025-12-10',    url: 'https://business-youth.ru/',    imageUrl: 'https://placehold.co/100x100?text=Business',    organizer: 'Высшая школа экономики',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '9',    title: 'От идеи до стартапа',    description: 'Шанс получить финансирование от инвесторов для лучших проектов.',    type: ResourceType.COURSE,    subjects: [Subject.ENTREPRENEURSHIP],    grades: [Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-10',    endDate: '2026-03-20',    url: 'https://practicumglobal.ru/',    imageUrl: 'https://placehold.co/100x100?text=Startup',    organizer: 'Сколково',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '10',    title: 'Личные финансы для подростков',    description: 'Научит грамотно управлять своим бюджетом и планировать накопления.',    type: ResourceType.COURSE,    subjects: [Subject.FINANCIAL_LITERACY],    grades: [Grade.GRADE_7, Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-15',    endDate: '2025-11-30',    url: 'https://fincult.info/',    imageUrl: 'https://placehold.co/100x100?text=Finance',    organizer: 'Центральный банк РФ',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '11',    title: 'Инвестирование для начинающих',    description: 'Практические навыки работы с биржевыми инструментами на учебном счете.',    type: ResourceType.COURSE,    subjects: [Subject.FINANCIAL_LITERACY],    grades: [Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-05',    endDate: '2026-01-25',    url: 'https://www.tinkoff.ru/invest/education/',    imageUrl: 'https://placehold.co/100x100?text=Invest',    organizer: 'Тинькофф',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '12',    title: 'Современная физика для школьников',    description: 'Поможет подготовиться к олимпиадам и поступлению в технические вузы.',    type: ResourceType.COURSE,    subjects: [Subject.SCIENCE],    grades: [Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-01',    endDate: '2026-04-30',    url: 'https://mipt.ru/online-courses/',    imageUrl: 'https://placehold.co/100x100?text=Physics',    organizer: 'МФТИ',    difficultyLevel: DifficultyLevel.ADVANCED,  },  {    id: '13',    title: 'Экспериментальная химия',    description: 'Доступ к лабораториям с современным оборудованием.',    type: ResourceType.COURSE,    subjects: [Subject.SCIENCE],    grades: [Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-20',    endDate: '2026-03-15',    url: 'https://chemgood.ru/courses/',    imageUrl: 'https://placehold.co/100x100?text=Chemistry',    organizer: 'МГУ им. Ломоносова',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '14',    title: 'Биология будущего',    description: 'Включает экскурсии в исследовательские центры и работу с учеными.',    type: ResourceType.COURSE,    subjects: [Subject.SCIENCE],    grades: [Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-01',    endDate: '2026-02-28',    url: 'https://biomolecula.ru/',    imageUrl: 'https://placehold.co/100x100?text=Biology',    organizer: 'Летово',    difficultyLevel: DifficultyLevel.INTERMEDIATE,  },  {    id: '15',    title: 'Астрономия и космические технологии',    description: 'Возможность наблюдать за небесными телами через профессиональные телескопы.',    type: ResourceType.COURSE,    subjects: [Subject.SCIENCE],    grades: [Grade.GRADE_7, Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-10',    endDate: '2026-04-10',    url: 'https://www.planetarium-moscow.ru/about/about/',    imageUrl: 'https://placehold.co/100x100?text=Astronomy',    organizer: 'Сириус',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '16',    title: 'Веб-разработка для начинающих',    description: 'Сертификат признается IT-компаниями при приеме на стажировку.',    type: ResourceType.COURSE,    subjects: [Subject.PROGRAMMING],    grades: [Grade.GRADE_8, Grade.GRADE_9, Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-05',    endDate: '2025-12-20',    url: 'https://htmlacademy.ru/',    imageUrl: 'https://placehold.co/100x100?text=Web',    organizer: 'Яндекс',    difficultyLevel: DifficultyLevel.BEGINNER,  },  {    id: '17',    title: 'Криптография и защита данных',    description: 'Разработан совместно с лабораторией Касперского.',    type: ResourceType.COURSE,    subjects: [Subject.CYBERSECURITY, Subject.PROGRAMMING],    grades: [Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-10-15',    endDate: '2026-02-10',    url: 'https://academy.kaspersky.ru/',    imageUrl: 'https://placehold.co/100x100?text=Crypto',    organizer: 'Высшая школа экономики',    difficultyLevel: DifficultyLevel.ADVANCED,  },  {    id: '18',    title: 'Компьютерное зрение и распознавание образов',    description: 'Занятия проходят на оборудовании, используемом в реальных проектах.',    type: ResourceType.COURSE,    subjects: [Subject.AI, Subject.PROGRAMMING],    grades: [Grade.GRADE_10, Grade.GRADE_11],    startDate: '2025-09-20',    endDate: '2026-01-30',    url: 'https://neural-university.ru/',    imageUrl: 'https://placehold.co/100x100?text=ComputerVision',    organizer: 'Сбер',    difficultyLevel: DifficultyLevel.ADVANCED,  },];
 
 
-import { Resource } from '../types';
+import { Resource } from "../types";
 
 export const mockResources: Resource[] = [
   {
     id: 1,
-    title: 'Программирование для начинающих',
-    description: 'Курс по основам Python.',
-    url: 'https://example.com',
-    provider: 'Tech Academy',
-    level: 'Начальный',
-    created_at: '2025-06-22T09:07:32.811Z',
-    updated_at: '2025-06-22T09:07:32.811Z',
-    category: { name: 'Программирование', id: 1 },
+    title: "Программирование для начинающих",
+    description: "Курс по основам Python.",
+    url: "https://example.com",
+    provider: "Tech Academy",
+    level: "Начальный",
+    created_at: "2025-06-22T09:07:32.811Z",
+    updated_at: "2025-06-22T09:07:32.811Z",
+    category: { name: "Программирование", id: 1 },
     grades: [
       { id: 1, level: 7 },
-      { id: 2, level: 8 }
+      { id: 2, level: 8 },
+       { id: 3, level: 9 },
+        { id: 4, level:  10},
+         { id: 5, level: 11 }
     ],
-    startDate: '2025-06-22T09:07:32.811Z',
-    endDate: '2025-06-22T09:07:32.811Z',
+    startDate: "2025-06-22T09:07:32.811Z",
+    endDate: "2025-06-22T09:07:32.811Z",
   },
   {
     id: 2,
-    title: 'Искусственный интеллект',
-    description: 'Введение в машинное обучение.',
-    url: 'https://example.com/ai',
-    provider: 'AI School',
-    level: 'Средний',
-    created_at: '2025-06-22T09:07:32.811Z',
-    updated_at: '2025-06-22T09:07:32.811Z',
-    category: { name: 'Искусственный интеллект', id: 2 },
+    title: "Искусственный интеллект",
+    description: "Введение в машинное обучение.",
+    url: "https://example.com/ai",
+    provider: "AI School",
+    level: "Средний",
+    created_at: "2025-06-22T09:07:32.811Z",
+    updated_at: "2025-06-22T09:07:32.811Z",
+    category: { name: "Искусственный интеллект", id: 2 },
     grades: [
       { id: 3, level: 9 },
       { id: 4, level: 10 }
     ],
-    startDate: '2025-07-01T00:00:00.000Z',
-    endDate: '2025-12-31T00:00:00.000Z',
+    startDate: "2025-07-01T00:00:00.000Z",
+    endDate: "2025-12-31T00:00:00.000Z",
   }
 ];
 

@@ -1,62 +1,40 @@
 version: '3.8'
 
 services:
-  backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile  # Ensure this exists in your backend folder
+  telegram-bot:
+    # This is the corrected line:
+    build: .
+    container_name: daha-telegram-bot
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - USER_DATA_API_ENDPOINT=${USER_DATA_API_ENDPOINT}
+      - API_TOKEN=${API_TOKEN}
+      - ADMIN_USER_IDS=${ADMIN_USER_IDS}
+    volumes:
+      - ./exports:/app/exports
+      - ./logs:/app/logs
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend/app:/app/app  # For development hot-reloading
-      - ./backend/requirements.txt:/app/requirements.txt  # For dependency management
-    environment:
-      - DATABASE_URL=postgresql://my_user:a-very-strong-password@db:5432/my_courses_db
-      - APP_ENV=development
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
     networks:
-      - app-network
-
-  db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/  # Persistent data volume
-      - ./db-backup:/docker-entrypoint-initdb.d  # SQL files for initial setup
-    environment:
-      - POSTGRES_FORCE_INIT=true
-      - POSTGRES_USER=my_user
-      - POSTGRES_PASSWORD=a-very-strong-password
-      - POSTGRES_DB=my_courses_db
+      - bot-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U my_user -d my_courses_db"]
-      interval: 5s
-      timeout: 10s  # Increased timeout for large databases
-      retries: 15   # More retries for initial backup loading
-    ports:
-      - "5432:5432"  
-    restart: unless-stopped
-    networks:
-      - app-network
-
-  # PGAdmin for database management
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=admin@example.com
-  #     - PGADMIN_DEFAULT_PASSWORD=admin
-  #   ports:
-  #     - "5050:80"
-  #   depends_on:
-  #     - db
-  #   networks:
-  #     - app-network
-
-volumes:
-  postgres_data:  # Named volume for persistent database storage
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
-  app-network:  # Dedicated network for better isolation
+  bot-network:
     driver: bridge
+
+# The "volumes" top-level key is for named volumes,
+# but you are using bind mounts, so this section can be removed
+# unless you plan to use named volumes later.
+# It is kept here for clarity but is not strictly necessary for your current setup.
+volumes:
+  exports:
+  logs:
+

@@ -7,6 +7,7 @@ import {
   Navigate,
   ScrollRestoration,
 } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Home from './pages/Home';
 import Users from './pages/Users';
 import Navbar from './components/Navbar';
@@ -20,29 +21,14 @@ import ToasterProvider from './components/ToasterProvider';
 import EditProfile from './pages/EditProfile';
 import Login from './pages/Login';
 
-// Authentication functions
-export const isAuthenticated = () => {
-  return localStorage.getItem('isAuthenticated') === 'true';
-};
-
-export const logout = () => {
-  localStorage.removeItem('isAuthenticated');
-  // Remove any other auth-related items
-  localStorage.removeItem('rememberMe');
-  localStorage.removeItem('email');
-  // You might also want to clear any tokens if using JWT
-  // localStorage.removeItem('token');
-};
-
-// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 };
 
-// Layout component for protected routes
 const AppLayout = () => {
   return (
     <div
@@ -133,7 +119,11 @@ function App() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

@@ -46,19 +46,21 @@ export interface FilterHandlers {
 }
 
 export type Subject =
-  | 'Программирование'
-  | 'Математика'
-  | 'Искусственный интеллект'
-  | 'Физика'
-  | 'Химия'
-  | 'Робототехника'
-  | 'Информационная безопасность'
-  | 'Предпринимательство'
-  | 'Финансовая грамотность'
-  | 'Наука'; // Expanded to match ResourceCard
+  | "Программирование"
+  | "Математика"
+  | "Искусственный интеллект"
+  | "Физика"
+  | "Химия"
+  | "Робототехника"
+  | "Информационная безопасность"
+  | "Предпринимательство"
+  | "Финансовая грамотность"
+  | "Наука"; // Expanded to match ResourceCard
 
-export const Grade = ['7', '8', '9', '10', '11'] as const;
-export type Grade = typeof Grade[number];
+export const Grade = ["7", "8", "9", "10", "11"] as const;
+// export type Grade = typeof Grade[number];
 
-export const DifficultyLevel = ['Начальный', 'Средний', 'Продвинутый'] as const;
+export const DifficultyLevel = ["Начальный", "Средний", "Продвинутый"] as const;
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type DifficultyLevel = typeof DifficultyLevel[number];

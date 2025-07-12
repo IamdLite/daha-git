@@ -1,6 +1,7 @@
-import { Box, Pagination } from '@mui/material';
-import ResourcesList from './ResourcesList';
-import { Resource } from '../../types';
+import { Box, Pagination } from "@mui/material";
+import React from "react";
+import { Resource } from "../../types";
+import ResourcesList from "./ResourcesList";
 
 interface ResourcesSectionProps {
   resources: Resource[];
@@ -18,12 +19,12 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({ resources, page, ro
   return (
     <Box
       sx={{
-        gridColumn: { xs: '1', md: '2' },
-        minHeight: { xs: '50vh', sm: '60vh' },
-        width: '100%',
-        overflow: 'visible',
-        display: 'flex',
-        flexDirection: 'column',
+        gridColumn: { xs: "1", md: "2" },
+        minHeight: { xs: "50vh", sm: "60vh" },
+        width: "100%",
+        overflow: "visible",
+        display: "flex",
+        flexDirection: "column",
         gap: 2,
       }}
     >
@@ -38,7 +39,7 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({ resources, page, ro
           page={page}
           onChange={(event, value) => onPageChange(value)}
           color="primary"
-          sx={{ mt: 2, alignSelf: 'center' }}
+          sx={{ mt: 2, alignSelf: "center" }}
         />
       )}
     </Box>

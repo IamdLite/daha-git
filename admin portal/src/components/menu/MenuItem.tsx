@@ -1,3 +1,4 @@
+// src/components/menu/MenuItem.tsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { IconType } from 'react-icons';
@@ -49,7 +50,13 @@ const MenuItem: React.FC<MenuItemProps> = ({
           return (
             <button
               key={index}
-              onClick={listItem.onClick === 'handleLogout' ? handleLogout : undefined}
+              onClick={
+                listItem.onClick === 'handleLogout' && handleLogout
+                  ? handleLogout
+                  : typeof listItem.onClick === 'function'
+                  ? listItem.onClick
+                  : undefined
+              }
               className="btn 2xl:min-h-[52px] 3xl:min-h-[64px] btn-ghost btn-block justify-start"
             >
               <listItem.icon className="xl:text-2xl 2xl:text-3xl 3xl:text-4xl" />

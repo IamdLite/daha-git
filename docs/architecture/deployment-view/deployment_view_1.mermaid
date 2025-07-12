@@ -1,0 +1,41 @@
+flowchart TB
+  %% === User Devices ===
+  Browser["Web Browser (User)"]
+  TelegramApp["Telegram App (User)"]
+
+  %% === Customer Infrastructure ===
+  subgraph Customer_Infra ["Customer Cloud / On-Prem"]
+    FE["Frontend (React)"]
+    AdminPanel["Admin Panel (React)"]
+    APIServer["API Server (FastAPI)"]
+    TelegramBot["Telegram Bot (Python)"]
+    DB["PostgreSQL Database"]
+  end
+
+  %% === External Cloud ===
+  subgraph Telegram_Cloud ["Telegram Cloud"]
+    TelegramPlatform["Telegram Platform"]
+  end
+
+  %% === Connections ===
+  Browser -- "HTTPS" --> FE
+  Browser -- "HTTPS" --> AdminPanel
+  FE -- "REST API" --> APIServer
+  AdminPanel -- "REST API/JWT" --> APIServer
+  APIServer -- "DB Connection" --> DB
+  APIServer -- "Webhook/API" --> TelegramBot
+  TelegramBot -- "Bot API" --> TelegramPlatform
+  TelegramApp -- "Messaging" --> TelegramPlatform
+  TelegramApp -- "Messaging" --> TelegramBot
+
+  %% === Comments on Deployment Choices ===
+  %% - All core components are Docker containers for portability and scaling.
+  %% - PostgreSQL can be managed or self-hosted for data residency.
+  %% - Telegram Bot runs inside customer infra, securely communicating with Telegram.
+  %% - Users access via browser or Telegram app.
+
+  %% === Legend ===
+  %% For a simple legend in Mermaid, use comments or explain in documentation:
+  %% - Blue: Customer infrastructure
+  %% - Yellow: External cloud (Telegram)
+  %% - Green: User devices

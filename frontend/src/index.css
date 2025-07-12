@@ -11,3 +11,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+[data-telegram-login] {
+  display: block !important;
+  width: 100% !important;
+  text-align: center;
+}
+
+[data-telegram-login] iframe {
+  display: block !important;
+  width: 100% !important;
+  height: 48px !important;
+  margin: 0 auto;
+}

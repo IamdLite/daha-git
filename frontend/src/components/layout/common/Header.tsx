@@ -6,44 +6,111 @@ import {
   Box,
   useTheme,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
   Avatar,
   IconButton,
   Menu,
   MenuItem,
   Divider,
-  CircularProgress
-} from '@mui/material';
-import { Link } from '@mui/material';
-import { useState, useEffect } from 'react';
-import logo from '../../../assets/daha-logo.png'
+  CircularProgress,
+} from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
+import { Toaster, toast as hotToast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { telegramLogin, TelegramUser } from "../../../api/auth";
+import logo from "../../../assets/daha-logo.png";
+
+export const TELEGRAM_BOT_NAME = "pooocheeemy_bot";
+export const TELEGRAM_AUTH_URL = "https://daha.linkpc.net/auth/telegram";
+
+declare global {
+  interface Window {
+    onTelegramAuth?: (user: TelegramUser) => void;
+  }
+}
 
 const Header = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [openCodeModal, setOpenCodeModal] = useState(false);
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState('');
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const navigate = useNavigate();
+  const [showWidget, setShowWidget] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
 
-  // Simulate authentication
   useEffect(() => {
-    if (openCodeModal && code.join('').length === 6) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsAuthenticated(true);
-        setOpenCodeModal(false);
-        setIsLoading(false);
-      }, 1500);
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("access_token", token);
+      localStorage.setItem("username", "user");
+      setIsAuthenticated(true);
+      setUsername("user");
+      hotToast.success("Login successful!");
+      navigate("/");
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [code, openCodeModal]);
+  }, [navigate]);
+
+  useEffect(() => {
+    const storedAuth = localStorage.getItem("isAuthenticated");
+    const storedUsername = localStorage.getItem("username");
+    const storedToken = localStorage.getItem("access_token");
+
+    if (storedAuth === "true" && storedUsername && storedToken) {
+      setIsAuthenticated(true);
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showWidget || !widgetContainerRef.current) return;
+
+    const container = widgetContainerRef.current;
+    container.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.async = true;
+    script.setAttribute("data-telegram-login", TELEGRAM_BOT_NAME);
+    script.setAttribute("data-size", "large");
+    script.setAttribute("data-auth-url", TELEGRAM_AUTH_URL);
+    script.setAttribute("data-request-access", "write");
+    script.setAttribute("data-radius", "12");
+    script.setAttribute("data-onauth", "onTelegramAuth(user)");
+
+    window.onTelegramAuth = async (user: TelegramUser) => {
+      setIsLoading(true);
+      try {
+        const fallbackUsername = user.username || user.first_name || `user_${user.id.toString().slice(-4)}`;
+        const { access_token } = await telegramLogin({
+          ...user,
+          username: fallbackUsername
+        });
+
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("username", fallbackUsername);
+        setIsAuthenticated(true);
+        setUsername(fallbackUsername);
+        setShowWidget(false);
+        hotToast.success(`Welcome ${fallbackUsername}!`);
+        navigate("/");
+      } catch (error) {
+        hotToast.error(error instanceof Error ? error.message : "Login failed");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = "";
+      delete window.onTelegramAuth;
+    };
+  }, [showWidget, navigate]);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -52,121 +119,71 @@ const Header = () => {
   const handleMenuClose = () => setAnchorEl(null);
 
   const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("username");
     setIsAuthenticated(false);
+    setUsername("");
     setAnchorEl(null);
-    setCode(['', '', '', '', '', '']);
+    hotToast.success("Logged out successfully");
   };
 
-  const handleOpen = () => {
-    setOpen(true);
-    setUsername('');
-    setError('');
-  };
-
-  const handleClose = () => setOpen(false);
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-
-    if (!username.trim()) {
-      setError('Введите ваш username');
-      return;
-    }
-
-    if (!username.startsWith('@')) {
-      setError('username должен начинаться с "@"');
-      return;
-    }
-
-    console.log('Submitted username:', username);
-    handleClose();
-    setOpenCodeModal(true);
-  };
-
-  const handleCodeSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const fullCode = code.join('');
-    console.log('Submitted code:', fullCode);
-  };
-
-  const handleCodeChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
-
-    if (value && index < 5) {
-      document.getElementById(`code-input-${index + 1}`)?.focus();
-    }
+  const handleToggleWidget = () => {
+    setShowWidget((prev) => !prev);
   };
 
   return (
     <>
-      {/* Compact AppBar */}
+      <Toaster position="top-right" />
       <AppBar
         position="fixed"
         color="default"
         elevation={0}
         sx={{
           height: 60,
-          backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+          backdropFilter: "blur(10px)",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
         }}
       >
         <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ minHeight: '60px !important' }}>
-            {/* Logo */}
-{/* Logo Section - Updated */}
-
-<Link href="/" sx={{ textDecoration: 'none'}}>
-<Box sx={{ 
-  display: 'flex', 
-  alignItems: 'center',
-  height: '60px', // Match header height
-  gap: 1, // Space between logo and text
-  cursor: 'pointer'
-}}>
-  <img
-    src={logo}
-    alt="DAHA Logo"
-    style={{ 
-      height: '40px', // Fixed height
-      width: 'auto',  // Maintain aspect ratio
-      maxWidth: '100%', // Prevent overflow
-      objectFit: 'contain', // Ensure image fits
-    }}
-  />
-
-  {/* <Typography
-    variant="h6"
-    sx={{
-      fontFamily: "'Inter', sans-serif",
-      fontWeight: 700,
-      background: `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      lineHeight: '1', // Fix vertical alignment
-    }}
-  >
-    DAHA
-  </Typography> */}
-</Box>
-</Link>
-
-            {/* Auth Section */}
-            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+          <Toolbar disableGutters sx={{ minHeight: "60px !important" }}>
+            <Box
+              component="a"
+              href="/"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                height: "60px",
+                gap: 1,
+                cursor: "pointer",
+                textDecoration: "none",
+              }}
+            >
+              <img
+                src={logo}
+                alt="DAHA Logo"
+                style={{
+                  height: "40px",
+                  width: "auto",
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
+            <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
               {isAuthenticated ? (
                 <>
                   <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
-                    <Avatar sx={{ 
-                      width: 32, 
-                      height: 32, 
-                      bgcolor: theme.palette.primary.main,
-                      fontSize: '0.875rem'
-                    }}>
-                      {username.charAt(1).toUpperCase()}
+                    <Avatar
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        bgcolor: theme.palette.primary.main,
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {username.charAt(0).toUpperCase()}
                     </Avatar>
                   </IconButton>
                   <Menu
@@ -178,16 +195,12 @@ const Header = () => {
                       sx: {
                         mt: 1.5,
                         minWidth: 180,
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                        '& .MuiMenuItem-root': {
-                          fontSize: '0.875rem',
-                          py: 1
-                        }
-                      }
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                      },
                     }}
                   >
-                    <MenuItem disabled sx={{ opacity: 1, color: 'text.primary' }}>
+                    <MenuItem disabled sx={{ opacity: 1, color: "text.primary" }}>
                       <Typography variant="body2">{username}</Typography>
                     </MenuItem>
                     <Divider />
@@ -195,154 +208,70 @@ const Header = () => {
                   </Menu>
                 </>
               ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleOpen}
-                  sx={{
-                    boxShadow: 'none',
-                    backgroundColor: '#000',
-                    color: '#fff',
-                    textTransform: 'none',
-                    borderRadius: '8px',
-                    px: 3,
-                    py: 0.8,
-                    fontSize: '0.875rem',
-                    '&:hover': {
-                      backgroundColor: '#333',
-                      boxShadow: 'none'
-                    }
-                  }}
-                >
-                  Вход
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={handleToggleWidget}
+                    sx={{
+                      boxShadow: "none",
+                      backgroundColor: "#000",
+                      color: "#fff",
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      px: 3,
+                      py: 0.8,
+                      fontSize: "0.875rem",
+                      whiteSpace: "nowrap",
+                      minWidth: "fit-content",
+                      "&:hover": {
+                        backgroundColor: "#333",
+                        boxShadow: "none",
+                      },
+                    }}
+                  >
+                    {showWidget ? "Скрыть" : "Вход"}
+                  </Button>
+                  {showWidget && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 60,
+                        right: 16,
+                        bgcolor: "background.paper",
+                        p: 3,
+                        borderRadius: "12px",
+                        boxShadow: 3,
+                        zIndex: 9999,
+                        minWidth: { xs: "90vw", sm: "320px" },
+                        maxWidth: "100%",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+                        Вход через Telegram
+                      </Typography>
+                      <Box
+                        ref={widgetContainerRef}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          minHeight: 48,
+                          width: "100%",
+                        }}
+                      />
+                      {isLoading && (
+                        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                          <CircularProgress size={24} />
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+                </>
               )}
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
-
-      {/* Username Dialog */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          sx: {
-            borderRadius: '12px',
-            maxWidth: '400px',
-            p: 3,
-            width: '100%'
-          }
-        }}
-      >
-        <form onSubmit={handleSubmit}>
-          <DialogTitle sx={{ p: 0, mb: 2, fontSize: '1.5rem', textAlign: 'center' }}>
-            Вход
-          </DialogTitle>
-          <DialogContent sx={{ p: 0, mb: 2 }}>
-            <TextField
-              fullWidth
-              placeholder="Ваш телеграмм username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={!!error}
-              helperText={error}
-              sx={{
-                '& .MuiInputBase-root': {
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.03)'
-                },
-                '& .MuiInputBase-input': {
-                  py: 1.5,
-                  px: 2
-                }
-              }}
-            />
-          </DialogContent>
-          <DialogActions sx={{ p: 0 }}>
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              sx={{
-                py: 1.2,
-                borderRadius: '8px',
-                fontSize: '1rem'
-              }}
-            >
-              Отправить
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-
-      {/* Verification Code Dialog */}
-      <Dialog
-        open={openCodeModal}
-        onClose={() => setOpenCodeModal(false)}
-        PaperProps={{
-          sx: {
-            borderRadius: '12px',
-            maxWidth: '450px',
-            p: 3,
-            width: '100%'
-          }
-        }}
-      >
-        <form onSubmit={handleCodeSubmit}>
-          <DialogTitle sx={{ p: 0, mb: 1, fontSize: '1.5rem', textAlign: 'center' }}>
-            Введите код
-          </DialogTitle>
-          <Typography sx={{ textAlign: 'center', mb: 3, color: 'text.secondary' }}>
-            Мы отправили 6-значный код в Telegram на аккаунт {username}
-          </Typography>
-          
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            mb: 4,
-            gap: 1
-          }}>
-            {code.map((digit, index) => (
-              <TextField
-                key={index}
-                id={`code-input-${index}`}
-                value={digit}
-                onChange={(e) => handleCodeChange(index, e.target.value)}
-                inputProps={{
-                  maxLength: 1,
-                  style: { textAlign: 'center', fontSize: '1.2rem' }
-                }}
-                sx={{
-                  flex: 1,
-                  '& .MuiInputBase-root': {
-                    height: '56px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.03)'
-                  }
-                }}
-              />
-            ))}
-          </Box>
-
-          {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <CircularProgress size={24} />
-            </Box>
-          ) : (
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              sx={{
-                py: 1.2,
-                borderRadius: '8px'
-              }}
-            >
-              Подтвердить
-            </Button>
-          )}
-        </form>
-      </Dialog>
     </>
   );
 };

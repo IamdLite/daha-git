@@ -1,8 +1,8 @@
-import { CssBaseline, Box, ThemeProvider } from '@mui/material';
-import MainPage from './components/layout/MainPage';
-import Footer from './components/layout/common/Footer';
-import Header from './components/layout/common/Header';
-import theme from './theme/theme';
+import { CssBaseline, Box, ThemeProvider } from "@mui/material";
+import Footer from "./components/layout/common/Footer";
+import Header from "./components/layout/common/Header";
+import MainPage from "./components/layout/MainPage";
+import theme from "./theme/theme";
 
 function App() {
   return (
@@ -10,12 +10,12 @@ function App() {
       <CssBaseline />
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          width: '100%',
-          maxWidth: '100vw',
-          overflowX: 'hidden'
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          width: "100%",
+          maxWidth: "100vw",
+          overflowX: "hidden"
         }}
       >
         {/* Header at the top (fixed or static) */}
@@ -27,8 +27,8 @@ function App() {
           sx={{
             flex: 1,  // Takes all available space
             py: { xs: 2, sm: 3, md: 4 },
-            width: '100%',
-            mt: { xs: '56px', sm: '64px' } // Adjust based on your header height
+            width: "100%",
+            mt: { xs: "56px", sm: "64px" } // Adjust based on your header height
           }}
         >
           <MainPage />

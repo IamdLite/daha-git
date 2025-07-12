@@ -1,8 +1,8 @@
 
-import { Drawer } from '@mui/material';
-import FiltersPanel from './FiltersPanel';
-import { FilterState, FilterHandlers } from '../../hooks/useFilters';
-import { useEffect } from 'react';
+import { Drawer } from "@mui/material";
+import { useEffect } from "react";
+import { FilterState, FilterHandlers } from "../../hooks/useFilters";
+import FiltersPanel from "./FiltersPanel";
 
 interface MobileFiltersDrawerProps {
   open: boolean;
@@ -26,10 +26,10 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({ open, onClose
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: { xs: '85%', sm: 350 },
-          borderRadius: '0 16px 16px 0',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          maxWidth: '100vw',
+          width: { xs: "85%", sm: 350 },
+          borderRadius: "0 16px 16px 0",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+          maxWidth: "100vw",
         },
       }}
     >

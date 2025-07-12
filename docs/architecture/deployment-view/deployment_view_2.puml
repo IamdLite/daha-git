@@ -1,0 +1,45 @@
+@startuml
+title Daha System: Deployment View
+
+legend left
+|= Symbol |= Type |= Example |
+| <&server> | Server/VM | Ubuntu VM, AWS EC2 |
+| <&layers> | Container | Docker |
+| <&database> | Database | PostgreSQL |
+| <&cloud> | Cloud Service | AWS S3, Telegram |
+endlegend
+
+' Nodes
+node "Customer Cloud/On-prem" as customerCloud <<server>> {
+    node "Web Server" <<container>> {
+        [Frontend App\n(React TS)]
+        [Admin Panel\n(React TS)]
+    }
+    node "Backend Server" <<container>> {
+        [API Server\n(FastAPI Python)]
+    }
+    database "PostgreSQL DB" <<db>>
+}
+
+cloud "Telegram Cloud" as telegramCloud <<cloud>> {
+    node "Telegram Bot\n(Python)" <<container>>
+    node "Telegram Platform"
+}
+
+cloud "User Devices" as userDevices <<cloud>> {
+    [Web Browser]
+    [Telegram App]
+}
+
+' Connections
+[Web Browser] --> [Frontend App\n(React TS)] : HTTPS
+[Web Browser] --> [Admin Panel\n(React TS)] : HTTPS
+[Frontend App\n(React TS)] --> [API Server\n(FastAPI Python)] : REST API
+[Admin Panel\n(React TS)] --> [API Server\n(FastAPI Python)] : REST API/JWT
+[API Server\n(FastAPI Python)] --> "PostgreSQL DB" : DB Connection
+[API Server\n(FastAPI Python)] <--> [Telegram Bot\n(Python)] : Webhook/API
+[Telegram Bot\n(Python)] <--> "Telegram Platform" : Bot API
+[Telegram App] <--> "Telegram Platform" : User Interaction
+[Telegram App] <--> [Telegram Bot\n(Python)] : Messaging
+
+@enduml

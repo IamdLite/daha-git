@@ -4,6 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Custom Telegram widget styling */
+[data-telegram-login] iframe {
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-telegram-login] iframe:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
 :root {
     font-family: "Plus Jakarta Sans", sans-serif;
     margin: 0;
@@ -104,14 +116,6 @@
 .fc .fc-header-toolbar .fc-toolbar-chunk .fc-button.fc-button-primary:disabled {
     @apply btn-disabled opacity-50
 }
-
-.input-error {
-  @apply border-red-500 focus:border-red-600;
-}
-.text-error {
-  @apply text-red-600;
-}
-
 
 #singleUser #activities ul li {
     @apply list-none relative w-[1px] pt-[50px] bg-primary

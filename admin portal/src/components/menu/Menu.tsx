@@ -1,11 +1,13 @@
-// import React from 'react';
+// src/components/menu/Menu.tsx
+import React from 'react';
 import { menu } from './data';
 import MenuItem from './MenuItem';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../../App';
 import toast from 'react-hot-toast';
 
 const Menu = () => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -15,17 +17,15 @@ const Menu = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="w-full flex flex-col gap-5">
-        {menu.map((item, index) => (
-          <MenuItem
-            key={index}
-            catalog={item.catalog}
-            listItems={item.listItems}
-            handleLogout={handleLogout}
-          />
-        ))}
-      </div>
+    <div className="flex flex-col gap-4">
+      {menu.map((item, index) => (
+        <MenuItem
+          key={index}
+          catalog={item.catalog}
+          listItems={item.listItems}
+          handleLogout={handleLogout}
+        />
+      ))}
     </div>
   );
 };

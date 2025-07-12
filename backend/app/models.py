@@ -10,12 +10,14 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     USER = "user"
 
+class UserNotifications(str, enum.Enum):
+    YES = "yes"
+    NO = "no"
 
 class CourseLevel(str, enum.Enum):
     BEGINNER = "Начальный"
     INTERMEDIATE = "Средний"
     ADVANCED = "Продвинутый"
-    ALL_LEVELS = "all_levels"
 
 
 
@@ -45,8 +47,6 @@ class Category(SQLModel, table=True):
 class User(SQLModel, table=True):
     id: int = Field(primary_key=True, description="Telegram User ID")
     username: Optional[str] = Field(default=None, index=True)
-    first_name: str
-
     role: UserRole = Field(default=UserRole.USER, nullable=False)
 
     saved_filters: Optional[dict] = Field(default={}, sa_column=Column(JSON))
@@ -56,6 +56,8 @@ class User(SQLModel, table=True):
         sa_column_kwargs={"server_default": func.now()},
         nullable=False
     )
+
+    notifications: UserNotifications = Field(default=UserNotifications.NO, nullable=False)
 
 
 class Course(SQLModel, table=True):
@@ -84,6 +86,5 @@ class Course(SQLModel, table=True):
     )
 
     category: Category = Relationship(back_populates="courses")
-
     grades: List[Grade] = Relationship(back_populates="courses", link_model=CourseGradeLink)
 

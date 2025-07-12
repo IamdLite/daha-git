@@ -1,0 +1,10 @@
+%%{init: {"theme": "base"}}%%
+%%{gitGraph: {"rotateCommitLabel": false, "showBranches": true, "showCommitLabel": true}}%%
+gitGraph LR:
+    commit id: "Initial commit"
+    branch sprint-5/issue-101-course-filtering
+    checkout sprint-5/issue-101-course-filtering
+    commit id: "feat: Add course filtering endpoint [#101]"
+    commit id: "test: Add filter tests [#101]"
+    checkout main
+    merge sprint-5/issue-101-course-filtering id: "Merge feature branch for course filtering (PR #201)"

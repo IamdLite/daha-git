@@ -2,24 +2,23 @@
   "name": "daha",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "homepage": "http://localhost:3000",
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.1.1",
-    "@mui/material": "^7.1.1",
+    "@mui/material": "^7.2.0",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "axios": "^1.10.0",
     "icons-material": "^0.0.1-security",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
     "react-scripts": "^5.0.1",
@@ -30,18 +29,73 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "lint": "eslint frontend/src --ext .js,.jsx,.ts,.tsx"
   },
   "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2021,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "plugins": [
+      "react",
+      "jsx-a11y",
+      "import"
+    ],
     "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:jsx-a11y/recommended",
+      "plugin:import/errors",
+      "plugin:import/warnings",
+      "plugin:import/typescript",
       "react-app",
       "react-app/jest"
     ],
+    "settings": {
+      "react": {
+        "version": "detect"
+      },
+      "import/resolver": {
+        "typescript": {}
+      }
+    },
     "rules": {
-      "@typescript-eslint/no-unused-vars": "warn"
+      "@typescript-eslint/no-unused-vars": "warn",
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "semi": [
+        "error",
+        "always"
+      ],
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "import/order": [
+        "error",
+        {
+          "groups": [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index"
+          ],
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ]
     }
   },
   "browserslist": {
@@ -57,14 +111,29 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.17",
     "@types/node": "^24.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "babel-jest": "^30.0.2",
+    "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "globals": "^16.3.0",
+    "jest": "^27.5.1",
+    "typescript-eslint": "^8.35.1"
   }
 }

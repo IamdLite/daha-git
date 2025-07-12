@@ -1,9 +1,9 @@
-import { Box, Container, Typography, Link, Divider, useTheme, Stack, IconButton } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TelegramIcon from '@mui/icons-material/Telegram';
-import EmailIcon from '@mui/icons-material/Email';
-import { useEffect, useRef } from 'react';
-import logo from '../../../assets/daha-logo.png';
+import EmailIcon from "@mui/icons-material/Email";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import { Box, Container, Typography, Link, Divider, useTheme, Stack, IconButton } from "@mui/material";
+import React, { useEffect, useRef } from "react";
+import logo from "../../../assets/daha-logo.png";
 
 const Footer: React.FC = () => {
   const theme = useTheme();
@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
 
   useEffect(() => {
     if (footerRef.current) {
-      console.log('Footer height:', footerRef.current.offsetHeight);
+      console.log("Footer height:", footerRef.current.offsetHeight);
     }
   }, []);
 
@@ -23,9 +23,9 @@ const Footer: React.FC = () => {
       key="unique-footer"
       data-testid="footer"
       sx={{
-        position: 'relative',
+        position: "relative",
         py: 3,
-        mt: 'auto',
+        mt: "auto",
         backgroundColor: theme.palette.grey[50],
         borderTop: `1px solid ${theme.palette.divider}`,
         zIndex: 1000,
@@ -35,23 +35,23 @@ const Footer: React.FC = () => {
         {/* Logo and Links Row */}
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
             mb: 2,
           }}
         >
           {/* Clickable Logo */}
-          <Link href="/" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+          <Link href="/" sx={{ textDecoration: "none", cursor: "pointer" }}>
             <img
               src={logo}
               alt="DAHA Logo"
               style={{
-                height: '40px',
-                width: 'auto',
-                maxWidth: '100%',
-                objectFit: 'contain',
+                height: "40px",
+                width: "auto",
+                maxWidth: "100%",
+                objectFit: "contain",
               }}
             />
           </Link>
@@ -59,19 +59,19 @@ const Footer: React.FC = () => {
           {/* Navigation Links */}
           <Box
             sx={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               mb: { xs: 2, md: 0 },
             }}
           >
-            <Stack direction="row" spacing={2} sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: '0.85rem' }}>
+            <Stack direction="row" spacing={2} sx={{ display: { xs: "none", md: "flex" } }}>
+              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: "0.85rem" }}>
                 О нас
               </Link>
-              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: '0.85rem' }}>
+              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: "0.85rem" }}>
                 Как добавить ресурс
               </Link>
-              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: '0.85rem' }}>
+              <Link href="#" color="text.secondary" underline="hover" sx={{ fontSize: "0.85rem" }}>
                 Партнерам
               </Link>
             </Stack>
@@ -96,9 +96,9 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             py: 1,
           }}
         >

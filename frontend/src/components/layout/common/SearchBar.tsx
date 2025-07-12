@@ -1,7 +1,7 @@
 
-import { Box, TextField, InputAdornment } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { useCallback } from 'react';
+import SearchIcon from "@mui/icons-material/Search";
+import { Box, TextField, InputAdornment } from "@mui/material";
+import { useCallback } from "react";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -18,7 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, onSearchChange }) =>
   );
 
   return (
-    <Box sx={{ width: '100%', maxWidth: '600px', mx: 'auto' }}>
+    <Box sx={{ width: "100%", maxWidth: "600px", mx: "auto" }}>
       <TextField
         fullWidth
         variant="outlined"
@@ -33,18 +33,18 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, onSearchChange }) =>
           ),
         }}
         sx={{
-          borderRadius: '50px',
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '50px',
-            backgroundColor: 'background.paper',
-            '& fieldset': {
-              borderColor: 'divider',
+          borderRadius: "50px",
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "50px",
+            backgroundColor: "background.paper",
+            "& fieldset": {
+              borderColor: "divider",
             },
-            '&:hover fieldset': {
-              borderColor: 'primary.main',
+            "&:hover fieldset": {
+              borderColor: "primary.main",
             },
-            '&.Mui-focused fieldset': {
-              borderColor: 'primary.main',
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main",
             },
           },
         }}

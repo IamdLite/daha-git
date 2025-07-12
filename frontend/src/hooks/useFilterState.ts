@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Resource } from '../types';
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { Resource } from "../types";
 
 export interface FilterState {
   selectedSubjects: string[];
@@ -35,10 +35,12 @@ export const useFilters = (): {
     selectedDifficulty: [],
     selectedGrades: [],
     selectedType: null,
-    searchQuery: '',
+    searchQuery: "",
     page: 1,
     rowsPerPage: 5,
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [resources, setResources] = useState<Resource[]>([]);
   const [filteredResources, setFilteredResources] = useState<Resource[]>([]);
   const [totalOpportunities, setTotalOpportunities] = useState(0);
@@ -48,45 +50,45 @@ export const useFilters = (): {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        console.log('Fetching from:', `${apiUrl}/api/courses`);
+        const apiUrl = process.env.REACT_APP_API_URL;
+        console.log("Fetching from:", `${apiUrl}/api/courses`);
         const response = await axios.get(`${apiUrl}/api/courses?limit=100`, {
           params: {
             page: filters.page,
             limit: filters.rowsPerPage,
-            subjects: filters.selectedSubjects.join(',') || undefined,
-            difficulty: filters.selectedDifficulty.join(',') || undefined,
-            grades: filters.selectedGrades.join(',') || undefined,
+            subjects: filters.selectedSubjects.join(",") || undefined,
+            difficulty: filters.selectedDifficulty.join(",") || undefined,
+            grades: filters.selectedGrades.join(",") || undefined,
             search: filters.searchQuery || undefined,
           },
         });
-        console.log('API Response:', response.data);
+        console.log("API Response:", response.data);
 
         const mappedResources: Resource[] = response.data.data.map((item: any) => ({
           id: item.id,
-          title: item.title || 'Без названия',
-          description: item.description || '',
-          url: item.url || '#',
-          provider: item.provider || 'Неизвестный провайдер',
-          level: item.level || 'Не указан',
+          title: item.title || "Без названия",
+          description: item.description || "",
+          url: item.url || "#",
+          provider: item.provider || "Неизвестный провайдер",
+          level: item.level || "Не указан",
           created_at: item.created_at || new Date().toISOString(),
           updated_at: item.updated_at || new Date().toISOString(),
-          category: item.category || { id: 0, name: 'Неизвестно' },
+          category: item.category || { id: 0, name: "Неизвестно" },
           grades: Array.isArray(item.grades) ? item.grades : [],
           startDate: item.created_at || new Date().toISOString(),
           endDate: item.updated_at || new Date().toISOString(),
           gradesEnum: Array.isArray(item.grades) ? item.grades.map((grade: number) => grade.toString()) : [],
-          subjectEnum: item.category?.name || 'Неизвестно',
+          subjectEnum: item.category?.name || "Неизвестно",
         }));
 
-        console.log('All Mapped Resources:', mappedResources);
+        console.log("All Mapped Resources:", mappedResources);
         setResources(mappedResources);
         setFilteredResources(mappedResources);
         setTotalOpportunities(response.data.total || mappedResources.length);
         setLoading(false);
       } catch (err: any) {
-        const errorMessage = err.response?.data?.detail || err.message || 'Не удалось загрузить курсы';
-        console.error('Fetch Error:', err);
+        const errorMessage = err.response?.data?.detail || err.message || "Не удалось загрузить курсы";
+        console.error("Fetch Error:", err);
         setError(errorMessage);
         setLoading(false);
       }
@@ -112,7 +114,7 @@ export const useFilters = (): {
       selectedDifficulty: [],
       selectedGrades: [],
       selectedType: null,
-      searchQuery: '',
+      searchQuery: "",
       page: 1,
     }));
   const handlePageChange = (page: number) =>

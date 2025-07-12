@@ -1,11 +1,11 @@
 
-import { Box, Button, IconButton, useTheme } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import SubjectFilter from './SubjectFilter';
-import DifficultyFilter from './DifficultyFilter';
-import GradeFilter from './GradeFilter';
-import { FilterState, FilterHandlers } from '../../hooks/useFilters';
+import CloseIcon from "@mui/icons-material/Close";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { Box, Button, IconButton, useTheme } from "@mui/material";
+import { FilterState, FilterHandlers } from "../../hooks/useFilters";
+import DifficultyFilter from "./DifficultyFilter";
+import GradeFilter from "./GradeFilter";
+import SubjectFilter from "./SubjectFilter";
 
 interface FiltersPanelProps {
   filters: FilterState;
@@ -23,30 +23,30 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({ filters, handlers, isMobile
   return (
     <Box
       sx={{
-        position: isMobile ? 'static' : 'fixed',
-        top: '96px', // Header (64px) + 32px padding
-        left: { md: 'calc((280px + 16px) / 2)', lg: 'calc((320px + 16px) / 2)' }, // Centered
+        position: isMobile ? "static" : "fixed",
+        top: "96px", // Header (64px) + 32px padding
+        left: { md: "calc((280px + 16px) / 2)", lg: "calc((320px + 16px) / 2)" }, // Centered
         width: { md: 280, lg: 320 },
-        height: 'calc(100vh - 96px - 100px - 16px)', // Header, footer (~100px), 16px bottom
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(10px)',
-        overflowY: 'auto',
+        height: "calc(100vh - 96px - 100px - 16px)", // Header, footer (~100px), 16px bottom
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(10px)",
+        overflowY: "auto",
         zIndex: 0, // Above Footer, below Header
         p: { xs: 2, md: 3 },
         pr: 3, // Right content padding
-        border: 'none',
-        boxShadow: 'none',
+        border: "none",
+        boxShadow: "none",
       }}
     >
       {isMobile && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 2 }}>
           <IconButton
             onClick={onClose}
             sx={{
               color: theme.palette.text.secondary,
-              '&:hover': {
+              "&:hover": {
                 color: theme.palette.primary.main,
-                backgroundColor: 'rgba(58, 123, 213, 0.04)',
+                backgroundColor: "rgba(58, 123, 213, 0.04)",
               },
             }}
           >
@@ -66,8 +66,8 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({ filters, handlers, isMobile
       {hasActiveFilters && (
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
+            display: "flex",
+            justifyContent: "center",
             borderTop: `1px solid ${theme.palette.divider}`,
             pt: 2,
           }}
@@ -78,18 +78,18 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({ filters, handlers, isMobile
             startIcon={<RestartAltIcon />}
             size="medium"
             sx={{
-              borderRadius: '50px',
+              borderRadius: "50px",
               px: 2.5,
               py: 0.75,
               fontWeight: 500,
-              borderWidth: '1.5px',
-              '&:hover': {
-                borderWidth: '1.5px',
-                backgroundColor: 'rgba(63, 81, 181, 0.04)',
+              borderWidth: "1.5px",
+              "&:hover": {
+                borderWidth: "1.5px",
+                backgroundColor: "rgba(63, 81, 181, 0.04)",
               },
             }}
           >
-            Reset Filters
+            Сбросить фильтры
           </Button>
         </Box>
       )}

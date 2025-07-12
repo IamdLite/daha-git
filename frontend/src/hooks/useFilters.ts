@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Resource } from '../types';
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { Resource, GradeLevel } from "../types";
 
-// Define API response type
 interface ApiResponse {
   data?: Resource[];
   detail?: string;
@@ -34,10 +33,11 @@ export const useFilters = () => {
     selectedDifficulty: [],
     selectedGrades: [],
     selectedType: null,
-    searchQuery: '',
+    searchQuery: "",
     page: 1,
     rowsPerPage: 5,
   });
+
   const [resources, setResources] = useState<Resource[]>([]);
   const [filteredResources, setFilteredResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,76 +46,39 @@ export const useFilters = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        // const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        const apiUrl = 'https://daha.linkpc.net'
-        console.log('Fetching from:', `${apiUrl}/api/courses`);
-        
-        const api  = axios.create({
-          baseURL: apiUrl,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-
+        const apiUrl = process.env.REACT_APP_API_URL;
+        const response = await axios.get<ApiResponse>(`${apiUrl}/api/courses`, {
+          params: { limit: 100 },
         });
 
-        api.interceptors.request.use(config => {
-          if (config.url?.startsWith('http://')) {
-            config.url = config.url.replace('http://', 'https://');
-          }
-          return config;
-        });
-
-        const response = await api.get<ApiResponse>('/api/courses', {
-          params: { limit: 100}
-        });
-
-        console.log('API Response:', response.data);
-
-        // Handle different response formats
-        const responseData = Array.isArray(response.data) 
-          ? response.data 
+        const responseData = Array.isArray(response.data)
+          ? response.data
           : response.data?.data || [];
 
         const mappedResources: Resource[] = responseData.map((item: any) => ({
-          id: item.id || Date.now().toString(),
-          title: item.title || 'Без названия',
-          description: item.description || '',
-          url: item.url || '#',
-          provider: item.provider || 'Неизвестный провайдер',
-          level: item.level || 'Не указан',
-          created_at: item.created_at || new Date().toISOString(),
-          updated_at: item.updated_at || new Date().toISOString(),
-          category: item.category || { id: 0, name: 'Неизвестно' },
-          grades: Array.isArray(item.grades) ? item.grades : [],
-          startDate: item.start_date || item.created_at || new Date().toISOString(),
-          endDate: item.end_date || item.updated_at || new Date().toISOString(),
-          gradesEnum: Array.isArray(item.grades) 
-            ? item.grades.map((grade: number) => grade.toString()) 
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          url: item.url,
+          provider: item.provider,
+          level: item.level,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          category: item.category,
+          grades: item.grades || [],
+          startDate: item.start_date,
+          endDate: item.end_date,
+          gradesEnum: item.grades
+            ? item.grades.map((g: GradeLevel) => g.level.toString())
             : [],
-          subjectEnum: item.category?.name || 'Неизвестно',
+          subjectEnum: item.category?.name,
         }));
 
-        console.log('Mapped Resources:', mappedResources);
         setResources(mappedResources);
+        setFilteredResources(mappedResources);
         setLoading(false);
       } catch (err: any) {
-        console.error('Fetch Error:', err);
-        
-        let errorMessage = 'Не удалось загрузить курсы';
-        if (err.response) {
-          errorMessage = err.response.data?.detail || 
-                       err.response.statusText || 
-                       `Ошибка сервера: ${err.response.status}`;
-        } else if (err.request) {
-          errorMessage = 'Нет ответа от сервера. Проверьте подключение.';
-        } else if (err.message.includes('Network Error')) {
-          errorMessage = 'Проблемы с подключением к сети';
-        } else if (err.message.includes('CORS')) {
-          errorMessage = 'Ошибка CORS. Проверьте настройки сервера.';
-        }
-
-        setError(errorMessage);
+        setError(err.message);
         setLoading(false);
       }
     };
@@ -124,63 +87,75 @@ export const useFilters = () => {
   }, []);
 
   useEffect(() => {
-    if (loading || error) {
-      setFilteredResources([]);
-      return;
-    }
+    if (loading || error) return;
 
-    let result = [...resources];
-    console.log('Filtering with:', filters);
+    const filtered = resources.filter((resource) => {
+      // Subject filter
+      if (
+        filters.selectedSubjects.length > 0 &&
+        !filters.selectedSubjects.includes(resource.category?.name)
+      ) {
+        return false;
+      }
 
-    // Apply filters sequentially
-    if (filters.selectedSubjects.length > 0) {
-      result = result.filter(resource => 
-        filters.selectedSubjects.includes(resource.category.name)
-      );
-    }
+      // Difficulty filter
+      if (
+        filters.selectedDifficulty.length > 0 &&
+        !filters.selectedDifficulty.includes(resource.level)
+      ) {
+        return false;
+      }
 
-    if (filters.selectedDifficulty.length > 0) {
-      result = result.filter(resource =>
-        resource.level && filters.selectedDifficulty.includes(resource.level)
-      );
-    }
+      // Grade filter
+      if (filters.selectedGrades.length > 0) {
+        const resourceGrades = resource.gradesEnum || [];
+        if (
+          !resourceGrades.some((grade) =>
+            filters.selectedGrades.includes(grade)
+          )
+        ) {
+          return false;
+        }
+      }
 
-    if (filters.selectedGrades.length > 0) {
-      result = result.filter(resource =>
-        resource.grades.some(grade =>
-          filters.selectedGrades.includes(grade.toString())
-        )
-      );
-    }
+      // Search filter
+      if (
+        filters.searchQuery &&
+        !resource.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
+        !resource.description
+          .toLowerCase()
+          .includes(filters.searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
 
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
-      result = result.filter(resource =>
-        resource.title.toLowerCase().includes(query)
-      );
-    }
+      return true;
+    });
 
-    setFilteredResources(result);
+    setFilteredResources(filtered);
   }, [filters, resources, loading, error]);
 
   const updateFilters = (updates: Partial<FilterState>) => {
-    setFilters(prev => ({ ...prev, ...updates, page: 1 }));
+    setFilters((prev) => ({ ...prev, ...updates, page: 1 }));
   };
 
   const handlers: FilterHandlers = {
-    handleSubjectsChange: (subjects) => updateFilters({ selectedSubjects: subjects }),
-    handleDifficultyChange: (difficulty) => updateFilters({ selectedDifficulty: difficulty }),
+    handleSubjectsChange: (subjects) =>
+      updateFilters({ selectedSubjects: subjects }),
+    handleDifficultyChange: (difficulty) =>
+      updateFilters({ selectedDifficulty: difficulty }),
     handleGradesChange: (grades) => updateFilters({ selectedGrades: grades }),
     handleTypeChange: (type) => updateFilters({ selectedType: type }),
     handleSearchChange: (query) => updateFilters({ searchQuery: query }),
-    handleResetFilters: () => updateFilters({
-      selectedSubjects: [],
-      selectedDifficulty: [],
-      selectedGrades: [],
-      selectedType: null,
-      searchQuery: '',
-    }),
-    handlePageChange: (page) => setFilters(prev => ({ ...prev, page })),
+    handleResetFilters: () =>
+      updateFilters({
+        selectedSubjects: [],
+        selectedDifficulty: [],
+        selectedGrades: [],
+        selectedType: null,
+        searchQuery: "",
+      }),
+    handlePageChange: (page) => setFilters((prev) => ({ ...prev, page })),
   };
 
   return {
@@ -192,3 +167,4 @@ export const useFilters = () => {
     error,
   };
 };
+

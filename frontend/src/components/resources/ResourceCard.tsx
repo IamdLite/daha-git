@@ -1,6 +1,6 @@
-import { Card, CardContent, Typography, Button, Box, Chip, Stack, useTheme } from '@mui/material';
-import { Resource, Subject, DifficultyLevel, Grade } from '../../types';
-
+import { Card, CardContent, Typography, Button, Box, Chip, Stack, useTheme } from "@mui/material";
+import React from "react";
+import { Resource, Subject, DifficultyLevel} from "../../types";
 interface ResourceCardProps {
   resource: Resource;
 }
@@ -15,8 +15,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
     const year = date.getFullYear();
     
     const monthsGenitive = [
-      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+      "января", "февраля", "марта", "апреля", "мая", "июня",
+      "июля", "августа", "сентября", "октября", "ноября", "декабря"
     ];
     
     const month = monthsGenitive[date.getMonth()];
@@ -25,22 +25,22 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   
   // Subject configuration
   const subjectConfig: Record<Subject, { label: string; color: string }> = {
-    'Искусственный интеллект': { label: 'Искусственный интеллект', color: '#3f51b5' },
-    'Робототехника': { label: 'Робототехника', color: '#9c27b0' },
-    'Программирование': { label: 'Программирование', color: '#00bfa5' },
-    'Информационная безопасность': { label: 'Информационная безопасность', color: '#f44336' },
-    'Предпринимательство': { label: 'Предпринимательство', color: '#ff9800' },
-    'Финансовая грамотность': { label: 'Финансовая грамотность', color: '#2196f3' },
-    'Наука': { label: 'Наука', color: '#4caf50' },
-    'Математика': { label: 'Математика', color: '#4caf50' },
-    'Физика': { label: 'Физика', color: '#ff9800' },
-    'Химия': { label: 'Химия', color: '#9c27b0' },
+    "Искусственный интеллект": { label: "Искусственный интеллект", color: "#3f51b5" },
+    "Робототехника": { label: "Робототехника", color: "#9c27b0" },
+    "Программирование": { label: "Программирование", color: "#00bfa5" },
+    "Информационная безопасность": { label: "Информационная безопасность", color: "#f44336" },
+    "Предпринимательство": { label: "Предпринимательство", color: "#ff9800" },
+    "Финансовая грамотность": { label: "Финансовая грамотность", color: "#2196f3" },
+    "Наука": { label: "Наука", color: "#4caf50" },
+    "Математика": { label: "Математика", color: "#4caf50" },
+    "Физика": { label: "Физика", color: "#ff9800" },
+    "Химия": { label: "Химия", color: "#9c27b0" },
   };
 
   const difficultyLabels: Record<DifficultyLevel, string> = {
-    'Начальный': 'Уровень: начальный',
-    'Средний': 'Уровень: средний',
-    'Продвинутый': 'Уровень: продвинутый',
+    "Начальный": "Уровень: начальный",
+    "Средний": "Уровень: средний",
+    "Продвинутый": "Уровень: продвинутый",
   };
 
   // Extract and normalize grades from resource
@@ -51,7 +51,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         .map(grade => grade?.level?.toString())
         .filter((grade): grade is string => 
           grade !== undefined && 
-          ['7', '8', '9', '10', '11'].includes(grade)
+          ["7", "8", "9", "10", "11"].includes(grade)
         );
     }
     
@@ -60,7 +60,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       return resource.gradesEnum
         .filter((grade): grade is string => 
           grade !== undefined && 
-          ['7', '8', '9', '10', '11'].includes(grade)
+          ["7", "8", "9", "10", "11"].includes(grade)
         );
     }
     
@@ -68,38 +68,38 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   };
 
   const gradeLabelsToShow = getGradeLabels();
-  const organizer = resource.provider || 'Неизвестный организатор';
+  const organizer = resource.provider || "Неизвестный организатор";
   const subject = resource.category.name as Subject;
   const difficultyLevel = resource.level as DifficultyLevel;
-  const startDate = resource.startDate || resource.created_at || '2025-06-01';
-  const endDate = resource.endDate || resource.updated_at || '2025-12-31';
+  const startDate = resource.startDate || resource.created_at || "2025-06-01";
+  const endDate = resource.endDate || resource.updated_at || "2025-12-31";
 
   return (
     <Card sx={{ 
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'all 0.3s ease',
-      borderRadius: { xs: '6px', sm: '8px' },
-      overflow: 'visible',
-      backgroundColor: 'white',
-      boxShadow: 'none',
-      border: '1px solid #e0e0e0',
-      '&:hover': {
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      transition: "all 0.3s ease",
+      borderRadius: { xs: "6px", sm: "8px" },
+      overflow: "visible",
+      backgroundColor: "white",
+      boxShadow: "none",
+      border: "1px solid #e0e0e0",
+      "&:hover": {
         borderColor: theme.palette.primary.main,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)',
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)",
       },
-      position: 'relative',
+      position: "relative",
       mb: { xs: 2, sm: 3 },
-      width: '100%'
+      width: "100%"
     }}>
       <CardContent sx={{ 
         pt: { xs: 2.5, sm: 3, md: 3.5 },
         pb: { xs: 1.5, sm: 2 },
         flexGrow: 1, 
         px: { xs: 2, sm: 2.5, md: 3 },
-        display: 'flex', 
-        flexDirection: 'column',
+        display: "flex", 
+        flexDirection: "column",
         gap: { xs: 1, sm: 1.5 }
       }}>
         {/* Title */}
@@ -107,11 +107,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           component="div" 
           variant="h5" 
           sx={{ 
-            fontSize: { xs: '1.2rem', sm: '1.35rem', md: '1.5rem' },
+            fontSize: { xs: "1.2rem", sm: "1.35rem", md: "1.5rem" },
             fontWeight: 700,
-            letterSpacing: '-0.01em',
+            letterSpacing: "-0.01em",
             lineHeight: 1.2,
-            color: '#4361ee',
+            color: "#4361ee",
             mb: { xs: 0.3, sm: 0.5 }
           }}
         >
@@ -123,9 +123,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           variant="body1" 
           sx={{ 
             fontWeight: 600,
-            fontSize: { xs: '1rem', sm: '1.05rem', md: '1.1rem' },
+            fontSize: { xs: "1rem", sm: "1.05rem", md: "1.1rem" },
             mb: { xs: 0.5, sm: 1 },
-            color: '#616161'
+            color: "#616161"
           }}
         >
           {organizer}
@@ -136,10 +136,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           variant="h6"
           sx={{
             fontWeight: 600,
-            fontSize: { xs: '1.2rem', sm: '1.25rem', md: '1.35rem' },
+            fontSize: { xs: "1.2rem", sm: "1.25rem", md: "1.35rem" },
             mb: { xs: 1.5, sm: 2 },
-            color: '#000',
-            letterSpacing: '-0.01em'
+            color: "#000",
+            letterSpacing: "-0.01em"
           }}
         >
           {formatDate(startDate)} — {formatDate(endDate)}
@@ -153,15 +153,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
               label={`${grade} класс`}
               size="medium"
               sx={{
-                borderRadius: { xs: '4px', sm: '6px' },
-                backgroundColor: '#f5f5f5',
-                color: '#333',
+                borderRadius: { xs: "4px", sm: "6px" },
+                backgroundColor: "#f5f5f5",
+                color: "#333",
                 px: { xs: 1, sm: 1.5 },
                 py: { xs: 2, sm: 2.5 },
-                height: 'auto',
+                height: "auto",
                 mb: 1,
                 fontWeight: 500,
-                fontSize: { xs: '0.85rem', sm: '0.9rem' }
+                fontSize: { xs: "0.85rem", sm: "0.9rem" }
               }}
             />
           ))}
@@ -169,15 +169,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
             label={difficultyLabels[difficultyLevel]}
             size="medium"
             sx={{
-              borderRadius: { xs: '4px', sm: '6px' },
-              backgroundColor: '#f0f7ff',
-              color: '#0066cc',
+              borderRadius: { xs: "4px", sm: "6px" },
+              backgroundColor: "#f0f7ff",
+              color: "#0066cc",
               px: { xs: 1, sm: 1.5 },
               py: { xs: 2, sm: 2.5 },
-              height: 'auto',
+              height: "auto",
               mb: 1,
               fontWeight: 500,
-              fontSize: { xs: '0.85rem', sm: '0.9rem' }
+              fontSize: { xs: "0.85rem", sm: "0.9rem" }
             }}
           />
         </Stack>
@@ -188,8 +188,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
             variant="body1"
             sx={{
               lineHeight: { xs: 1.5, sm: 1.6 },
-              color: '#333333',
-              fontSize: { xs: '0.95rem', sm: '1rem' }
+              color: "#333333",
+              fontSize: { xs: "0.95rem", sm: "1rem" }
             }}
           >
             {resource.description}
@@ -205,13 +205,13 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
               sx={{ 
                 mb: 0.75,
                 fontWeight: 500,
-                fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                fontSize: { xs: "0.85rem", sm: "0.9rem" },
                 backgroundColor: `${subjectConfig[subject].color}10`,
                 color: subjectConfig[subject].color,
-                height: { xs: '28px', sm: '32px' },
-                borderRadius: { xs: '4px', sm: '6px' },
+                height: { xs: "28px", sm: "32px" },
+                borderRadius: { xs: "4px", sm: "6px" },
                 px: { xs: 0.5, sm: 1 },
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: `${subjectConfig[subject].color}20`,
                 }
               }}
@@ -221,26 +221,26 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       </CardContent>
       
       {/* Link Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', px: { xs: 2, sm: 2.5, md: 3 }, pb: { xs: 2, sm: 2.5, md: 3 }, mt: 'auto' }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-start", px: { xs: 2, sm: 2.5, md: 3 }, pb: { xs: 2, sm: 2.5, md: 3 }, mt: "auto" }}>
         <Button 
           variant="contained" 
           href={resource.url} 
           target="_blank" 
           rel="noopener"
           sx={{ 
-            borderRadius: '4px',
+            borderRadius: "4px",
             px: { xs: 3, sm: 3.5, md: 4 },
             py: { xs: 0.75, sm: 1 },
             fontWeight: 600,
-            letterSpacing: '0.01em',
-            fontSize: { xs: '0.9rem', sm: '0.95rem' },
-            boxShadow: 'none',
-            backgroundColor: '#000',
-            color: '#fff',
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#333',
-              boxShadow: 'none'
+            letterSpacing: "0.01em",
+            fontSize: { xs: "0.9rem", sm: "0.95rem" },
+            boxShadow: "none",
+            backgroundColor: "#000",
+            color: "#fff",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "#333",
+              boxShadow: "none"
             }
           }}
         >

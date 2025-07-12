@@ -1,8 +1,9 @@
 import datetime
 from datetime import date
 from typing import Optional, List
+from pydantic import BaseModel, Field as PydanticField
 from sqlmodel import SQLModel
-from .models import UserRole, CourseLevel, Grade, Category, Course, User
+from .models import UserRole, CourseLevel, Grade, Category, Course, User, UserNotifications
 
 
 class CourseCount(SQLModel):
@@ -26,7 +27,6 @@ class CategoryRead(CategoryCreate):
 
 class CategoryReadWithCourses(CategoryRead):
     courses: list["CourseRead"] = []
-
 
 class CourseBase(SQLModel):
     title: str
@@ -67,24 +67,41 @@ class CourseUpdate(SQLModel):
     description: Optional[str] = None
     url: Optional[str] = None
     provider: Optional[str] = None
-    category_id: Optional[int] = None
     level: Optional[CourseLevel] = None
-    grade: Optional[Grade] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    category_id: Optional[int] = None
+    start_date: Optional[datetime.date] = None
+    end_date: Optional[datetime.date] = None
+    grade_ids: Optional[List[int]] = None
 
 
 class UserBase(SQLModel):
     id: int
     username: Optional[str] = None
-    first_name: str
+    notifications: str
 
 class UserRead(UserBase):
     role: UserRole
     saved_filters: SavedFilters
     created_at: datetime.datetime
+    notifications: UserNotifications
 
+class TelegramAuthData(BaseModel):
+    id: int
+    username: Optional[str] = None
+    photo_url: Optional[str] = PydanticField(None, alias='photo_url')
+    auth_date: int
+    hash: str
 
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class TokenData(SQLModel):
+    id: Optional[str] = None
+
+class UserPreferencesUpdate(SQLModel):
+    saved_filters: SavedFilters
+    notifications: UserNotifications
 
 CourseRead.model_rebuild()
 CategoryReadWithCourses.model_rebuild()

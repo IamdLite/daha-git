@@ -1,0 +1,34 @@
+@startuml
+title Admin Adds Course and Notification Flow
+
+actor Admin
+participant "Admin Panel\nReact TS" as AdminPanel
+participant "API Server\nFastAPI Python" as APIServer
+database "PostgreSQL Database" as DB
+participant "Telegram Bot\nPython" as TelegramBot
+participant "Frontend\nReact TS" as Frontend
+
+Admin -> AdminPanel: Use Admin Panel to add course
+AdminPanel -> APIServer: POST /courses (new course data)
+activate APIServer
+
+APIServer -> DB: Insert new course
+activate DB
+DB --> APIServer: Course added
+deactivate DB
+
+APIServer -> APIServer: Check saved filters for matching users
+APIServer -> APIServer: For each matched user:
+loop Notify matched users
+    APIServer -> TelegramBot: Send notification(user, course)
+    activate TelegramBot
+    TelegramBot --> APIServer: Notification sent
+    deactivate TelegramBot
+end
+
+APIServer -> Frontend: Notify new course available
+deactivate APIServer
+
+Frontend --> Frontend: Update course list UI
+
+@enduml

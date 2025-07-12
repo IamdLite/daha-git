@@ -1,0 +1,41 @@
+@startuml
+title Daha System: Course Aggregator Architecture
+
+legend
+|= Color |= Type |= Significance |
+|<#blue>| REST API | Standard API communication between frontend/admin and backend |
+|<#green>| Auth | Secure authentication flow (Telegram or JWT) |
+|<#orange>| Webhook | Asynchronous event or message passing from Telegram API |
+|<#brown>| Database | Data persistence and retrieval operations |
+endlegend
+
+package "Frontend" {
+  [Frontend\nReact TS\nUser-facing web app\nwith Telegram auth] <<frontend>>
+  [Mini App\nReact TS\nMobile Telegram interface] <<frontend>>
+  [Admin Panel\nVite React TS\nAdmin tasks\nwith JWT auth] <<admin>>
+}
+
+package "Backend" {
+  [API Server\nFastAPI Python\nBusiness logic] <<backend>>
+  [Database\nPostgreSQL\nStores course & user data] <<database>>
+}
+
+package "Telegram Integration" {
+  [Telegram Bot\nPython\nCourse queries & notifications] <<integration>>
+}
+
+' Main flows with color coding and direction
+[Frontend\nReact TS\nUser-facing web app\nwith Telegram auth] -down[#blue]-> [API Server\nFastAPI Python\nBusiness logic] : REST
+[Frontend\nReact TS\nUser-facing web app\nwith Telegram auth] -down[#green]-> [API Server\nFastAPI Python\nBusiness logic] : Telegram Auth
+
+[Mini App\nReact TS\nMobile Telegram interface] -down[#blue]-> [API Server\nFastAPI Python\nBusiness logic] : REST
+[Mini App\nReact TS\nMobile Telegram interface] -right[#orange]-> [Telegram Bot\nPython\nCourse queries & notifications] : Webhook
+
+[Admin Panel\nVite React TS\nAdmin tasks\nwith JWT auth] -down[#blue]-> [API Server\nFastAPI Python\nBusiness logic] : REST
+[Admin Panel\nVite React TS\nAdmin tasks\nwith JWT auth] -down[#green]-> [API Server\nFastAPI Python\nBusiness logic] : JWT Auth
+
+[API Server\nFastAPI Python\nBusiness logic] -down[#brown]-> [Database\nPostgreSQL\nStores course & user data] : DB
+
+[Telegram Bot\nPython\nCourse queries & notifications] -left[#orange]-> [API Server\nFastAPI Python\nBusiness logic] : Webhook
+
+@enduml
