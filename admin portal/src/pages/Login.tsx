@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import ChangeThemes from '../components/ChangesThemes';
 import { useAuth } from '../contexts/AuthContext';
-import { requestTelegramCode, verifyTelegramCode, TelegramCodeRequest, TelegramCodeVerify } from '../api/auth';
+import { requestTelegramCode, verifyTelegramCode } from '../api/auth';
 import { TextField, Button, Box, Typography } from '@mui/material';
 
 const Login = () => {
