@@ -1,106 +1,73 @@
-from typing import List, Dict, Any, Set
+from typing import Dict, Set, List, Any, Optional
+import logging
+from api.client import CourseAPIClient, APIError
+from configs.settings import settings, SUBJECT_TO_CATEGORY, DIFFICULTY_TO_LEVEL, GRADE_TO_ID
 
-COURSES = [
-    {
-        "id": 63,
-        "name": "Личные финансы для подростков",
-        "subjects": ["Финансовая грамотность"],
-        "difficulty": "Начальный",
-        "grade": ["9", "10", "11"],
-        "dates": "01.09.2025 - 30.11.2025",
-        "provider": "Центральный банк РФ",
-        "link": "https://fincult.info/"
-    },
-    {
-        "id": 64,
-        "name": "Инвестирование для начинающих",
-        "subjects": ["Финансовая грамотность", "Предпринимательство"],
-        "difficulty": "Средний",
-        "grade": ["9", "10", "11"],
-        "dates": "15.09.2025 - 15.12.2025",
-        "provider": "Тинькофф",
-        "link": "https://www.tinkoff.ru/invest/education/"
-    },
-    {
-        "id": 65,
-        "name": "Современная физика для школьников",
-        "subjects": ["Наука"],
-        "difficulty": "Продвинутый",
-        "grade": ["10", "11"],
-        "dates": "01.10.2025 - 31.03.2026",
-        "provider": "МФТИ",
-        "link": "https://mipt.ru/online-courses/"
-    },
-    {
-        "id": 66,
-        "name": "Экспериментальная химия",
-        "subjects": ["Наука"],
-        "difficulty": "Средний",
-        "grade": ["9", "10", "11"],
-        "dates": "10.09.2025 - 20.12.2025",
-        "provider": "МГУ им. Ломоносова",
-        "link": "https://chemgood.ru/courses/"
-    },
-    {
-        "id": 67,
-        "name": "Биология будущего",
-        "subjects": ["Наука"],
-        "difficulty": "Средний",
-        "grade": ["9", "10", "11"],
-        "dates": "05.10.2025 - 25.01.2026",
-        "provider": "Летово",
-        "link": "https://biomolecula.ru/"
-    },
-    {
-        "id": 68,
-        "name": "Астрономия и космические технологии",
-        "subjects": ["Наука"],
-        "difficulty": "Начальный",
-        "grade": ["8", "9", "10"],
-        "dates": "01.11.2025 - 28.02.2026",
-        "provider": "Сириус",
-        "link": "https://www.planetarium-moscow.ru/about/about/"
-    },
-    {
-        "id": 69,
-        "name": "Веб-разработка для начинающих",
-        "subjects": ["Программирование"],
-        "difficulty": "Начальный",
-        "grade": ["8", "9"],
-        "dates": "15.08.2025 - 30.11.2025",
-        "provider": "Яндекс",
-        "link": "https://www.planetarium-moscow.ru/about/about/"
-    },
-    {
-        "id": 70,
-        "name": "Криптография и защита данных",
-        "subjects": ["Кибербезопасность", "Программирование"],
-        "difficulty": "Продвинутый",
-        "grade": ["10", "11"],
-        "dates": "20.09.2025 - 15.03.2026",
-        "provider": "Высшая школа экономики",
-        "link": "https://academy.kaspersky.ru/"
-    },
-    {
-        "id": 71,
-        "name": "Компьютерное зрение и распознавание образов",
-        "subjects": ["Искусственный интеллект", "Программирование"],
-        "difficulty": "Продвинутый",
-        "grade": ["10", "11"],
-        "dates": "01.02.2026 - 30.06.2026",
-        "provider": "Сбер",
-        "link": "https://neural-university.ru/"
-    }
-]
+
+
+logger = logging.getLogger(__name__)
+
+
+def _convert_filters_to_api_params(filters: Dict[str, Set]) -> Dict[str, Any]:
+    """
+    Конвертирует фильтры бота в параметры API
+
+    Args:
+        filters: Фильтры пользователя из бота
+
+    Returns:
+        Параметры для API запроса
+    """
+    api_params = {}
+
+    # Конвертируем предметы в category_id
+    if filters.get("subjects"):
+        subjects = filters["subjects"]
+        # Берем первый предмет для простоты (можно расширить логику)
+        for subject in subjects:
+            if subject in SUBJECT_TO_CATEGORY:
+                api_params['category_id'] = SUBJECT_TO_CATEGORY[subject]
+                break
+
+    # Конвертируем сложность в level
+    if filters.get("difficulty"):
+        difficulties = filters["difficulty"]
+        # Берем первую сложность
+        for difficulty in difficulties:
+            if difficulty in DIFFICULTY_TO_LEVEL:
+                api_params['level'] = DIFFICULTY_TO_LEVEL[difficulty]
+                break
+
+    # Конвертируем класс в grade_id
+    if filters.get("grade"):
+        grades = filters["grade"]
+        # Берем первый класс
+        for grade in grades:
+            if isinstance(grade, str) and grade.isdigit():
+                grade = int(grade)
+            if grade in GRADE_TO_ID:
+                api_params['grade_id'] = GRADE_TO_ID[grade]
+                break
+
+    return api_params
 
 
 class CourseFilter:
-    """Класс для фильтрации курсов"""
 
-    @staticmethod
-    def filter_courses(filters: Dict[str, Set]) -> List[Dict[str, Any]]:
+    def __init__(self):
+        """Инициализация сервиса"""
+        try:
+            #config.validate()
+            logger.info(self, "API client инициализирован")
+            self.api_client = CourseAPIClient()
+
+        except Exception as e:
+            logger.error(f"Ошибка инициализации CourseFilter: {e}")
+            raise
+
+    def filter_courses(self, filters: Dict[str, Set]) -> List[Dict[str, Any]]:
         """
-        Фильтрует курсы по заданным критериям
+        Фильтрует курсы по заданным критериям через API
 
         Args:
             filters: Словарь с фильтрами пользователя
@@ -108,31 +75,56 @@ class CourseFilter:
         Returns:
             Список отфильтрованных курсов
         """
-        results = []
+        try:
+            # Конвертируем фильтры в параметры API
+            api_params = _convert_filters_to_api_params(filters)
 
-        for course in COURSES:
-            # Проверяем предметы
-            subjects_match = (
-                    not filters.get("subjects") or
-                    any(s in course["subjects"] for s in filters["subjects"])
-            )
+            logger.info(f"Запрос курсов с параметрами: {api_params}")
 
-            # Проверяем сложность
-            difficulty_match = (
-                    not filters.get("difficulty") or
-                    course["difficulty"] in filters["difficulty"]
-            )
+            # Получаем курсы через API
+            if api_params:
+                # Если есть параметры для API, используем их
+                result = self.api_client.get_courses(**api_params)
+                courses = result['courses']
+            else:
+                # Если нет параметров API, получаем все курсы
+                courses = self.api_client.get_all_courses()
 
-            # Проверяем класс
-            grade_match = (
-                    not filters.get("grade") or
-                    any(g in course["grade"] for g in filters["grade"])
-            )
 
-            if subjects_match and difficulty_match and grade_match:
-                results.append(course)
 
-        return results
+            logger.info(f"Найдено {len(courses)} курсов после фильтрации")
+
+            return courses
+
+        except APIError as e:
+            logger.error(f"Ошибка API при фильтрации курсов: {e}")
+            # Возвращаем пустой список в случае ошибки API
+            return []
+        except Exception as e:
+            logger.error(f"Неожиданная ошибка при фильтрации курсов: {e}")
+            return []
+
+    def get_course_by_id(self, course_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Получение курса по ID
+
+        Args:
+            course_id: ID курса
+
+        Returns:
+            Данные курса или None
+        """
+        try:
+            # Для получения конкретного курса нужно будет расширить API клиент
+            # Пока получаем все курсы и ищем нужный
+            all_courses = self.api_client.get_all_courses()
+            for course in all_courses:
+                if course.get('id') == course_id:
+                    return course
+            return None
+        except Exception as e:
+            logger.error(f"Ошибка при получении курса {course_id}: {e}")
+            return None
 
     @staticmethod
     def format_course_message(course: Dict[str, Any]) -> str:
@@ -145,12 +137,25 @@ class CourseFilter:
         Returns:
             Отформатированное сообщение
         """
+        grade_list = ""
+        for grade in course['grades']:
+            grade_list += (str(({grade['level']}).pop())) + ", "
+        
+
         return (
-            f"{course['name']}\n"
-            f"Провайдер: {course['provider']}\n"
-            f"{course['dates']}\n"
-            f"Класс(-ы): {', '.join(course['grade'])}\n"
-            f"Сложность: {course['difficulty']}\n"
-            f"Описание: Описание недоступно.\n"
-            f"{', '.join(course['subjects'])}"
+            f"{course.get('title')}\n"
+            f"Предмет(-ы) 📚: {course['category']['name']}\n"
+            f"Провайдер 🧭: {course['provider']}\n"
+            f"Класс(-ы) 🏫:" + grade_list + "\n"
+            f"Сложность 🎚️: {course['level']}\n"
+            f"Даты 🗓️: {course['start_date']} - {course['end_date']}\n"
+            f"Описание 📜:\n\n{course['description']}\n"
+            f"Ссылка ↘️\n"
+            
+            # make multiple categories possible
         )
+
+# Глобальный экземпляр сервиса
+course_filter = CourseFilter()
+
+

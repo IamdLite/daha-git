@@ -1,0 +1,23 @@
+- **Technology Stack**
+
+    - **Frontend**:
+        - Technologies: React
+        - Infrastructure: Vercel (hosting)
+        - Function: Course browsing and interaction UI
+    - **Mini App**:
+        - Technologies: React
+        - Platform: Telegram
+        - Infrastructure: Vercel
+        - Function: Lightweight mobile interface
+    - **Backend**:
+        - Technologies: FastAPI (Python)
+        - Infrastructure: Docker → Cloud.ru VM
+        - Function: API requests and course data processing
+    - **Telegram Bot**:
+        - Technologies: Python + python-telegram-bot library
+        - Infrastructure: Docker → Cloud.ru VM
+        - Function: Telegram command interactions
+    - **Database**:
+        - Technologies: PostgreSQL
+        - Infrastructure: Cloud.ru (managed service)
+        - Function: Stores course and user data

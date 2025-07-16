@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/react-gh-pages/static/css/main.0264a42b.css",
-    "main.js": "/react-gh-pages/static/js/main.2448dc3b.js",
-    "static/js/453.dfae5b49.chunk.js": "/react-gh-pages/static/js/453.dfae5b49.chunk.js",
-    "static/media/daha-logo.png": "/react-gh-pages/static/media/daha-logo.1c84e2af5da97202eedb.png",
-    "index.html": "/react-gh-pages/index.html",
-    "main.0264a42b.css.map": "/react-gh-pages/static/css/main.0264a42b.css.map",
-    "main.2448dc3b.js.map": "/react-gh-pages/static/js/main.2448dc3b.js.map",
-    "453.dfae5b49.chunk.js.map": "/react-gh-pages/static/js/453.dfae5b49.chunk.js.map"
+    "main.css": "/daha-git/static/css/main.0264a42b.css",
+    "main.js": "/daha-git/static/js/main.cdea171e.js",
+    "static/js/453.dfae5b49.chunk.js": "/daha-git/static/js/453.dfae5b49.chunk.js",
+    "static/media/daha-logo.png": "/daha-git/static/media/daha-logo.1c84e2af5da97202eedb.png",
+    "index.html": "/daha-git/index.html",
+    "main.0264a42b.css.map": "/daha-git/static/css/main.0264a42b.css.map",
+    "main.cdea171e.js.map": "/daha-git/static/js/main.cdea171e.js.map",
+    "453.dfae5b49.chunk.js.map": "/daha-git/static/js/453.dfae5b49.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0264a42b.css",
-    "static/js/main.2448dc3b.js"
+    "static/js/main.cdea171e.js"
   ]
 }

@@ -1,3 +1,5 @@
+![Описание картинки](images/daha-logo.png){: width="200px"}
+
 # Daha: Course Aggregator Platform
 
 A course aggregator platform for high school students, featuring a React frontend, FastAPI backend, Telegram bot, and Mini App.
@@ -10,6 +12,39 @@ A course aggregator platform for high school students, featuring a React fronten
 - **API**: Access at [https://daha.linkpc.net/api/courses](https://daha.linkpc.net/api/courses).
 - **Bot**: Message [@bot_Daha_bot](https://t.me/bot_DAHA_bot) with commands `/start`, `/set-filter`, or `/webapp`.
 
+- MVP 2.5 Demo Video: 
+
+## Usage Instruction (Short user guide)
+
+-- **Welcome to DAHA, your free gateway to global learning opportunities! This guide will help you navigate the platform and make the most of its features.**
+
+-- **1. Getting Started.** 
+
+- Registration.
+  - Click on the "Вход" button located in the upper right corner.
+  - Provide your telegram username.
+  - After that you will receive 6-digit code via telegram.
+  - Use this code to finfish the registration.
+
+-- **2. Searching Courses.**
+
+- Filtering courses.
+  - In the middle of the page you can see a lot of courses provided by different universities or MOOC plaforms.
+  - It may be difficult to sort courses by hand, just scrolling the courses.
+  - That's why DAHA provides you a set of silters which you can see on the left side of the page.
+  - There are three types of filters: "Предмет", "Уровень сложности", "Классы".
+    - "Предметы" Filter - Provides an ability to choose subjects in which you are interested in.
+    - "Уровень сложности" - Provides an ability to choose dificulty of the course.
+    - "Классы" - Provides an ability to choose you current school class level.
+  - To reset filters you can use "сбросить фильтры" button.
+
+- Choosing suitable couse.
+  - When previous step is done and all the filters are applied, start choosing the course.
+  - Each course widget contains: course name, course date, course description, course link. 
+    - Read course descriptions to choose the most stuitible one. 
+    - After you chose the course, click on the link button "Ссылка на курс".
+  
+
 ## Architecture
 
 The system employs a microservices architecture to ensure scalability, usability, and reliability:
@@ -21,6 +56,37 @@ The system employs a microservices architecture to ensure scalability, usability
 - **Database**: A PostgreSQL instance hosted on a Cloud.ru managed service, storing course and user data.
 
 For a detailed architectural overview, refer to [doc/architecture/architecture.md](https://gitlab.pg.innopolis.university/daha-40/daha/-/blob/main/doc/architecture/architecture.md).
+
+## Project Goal
+
+To democratize access to educational resources by aggregating diverse courses for high school students in a free, multi-platform ecosystem.
+
+## Project Description
+
+DAHA is a zero-cost course aggregation platform designed to empower high school students worldwide. It simplifies discovery of vetted 
+educational content through multiple access points while maintaining a unified user experience. 
+
+- **Core Objectives**
+
+  - Centralize fragmented resources
+    - Aggregate courses from universities, MOOC platforms, and community initiatives.
+  - Eliminate access barriers
+    - Free service with no subscriptions or paywalls.
+  - Adapt to user preferences
+    - Deliver content through web, mobile, and popular messaging platforms.
+
+
+- **Impact**
+
+  - ✅ For Students: Single-point access to global learning opportunities
+  - ✅ For Educators: Reach wider audiences without platform fees
+  - ✅ For Institutions: Standardized course discovery interface
+
+
+## Project Context Diagram
+
+![Описание картинки](images/ContextDiagram.png)
+
 
 ## Development
 
@@ -181,6 +247,25 @@ The platform employs a comprehensive automated testing suite to maintain quality
   - Five new unit tests and five new integration tests were added in the `UserQualityAssurance` branch ([Commit](https://gitlab.pg.innopolis.university/daha-40/daha/-/commit/abc123)).
 - **CI Pipeline**: Defined in [.gitlab-ci.yml](https://gitlab.pg.innopolis.university/daha-40/daha/-/blob/main/.gitlab-ci.yml), the pipeline runs all tests and static analysis on every push or merge request, failing if any checks do not pass.
 - **Execution**: Tests are executed automatically via the CI pipeline. Manual execution is possible using `npm test` for Frontend and Mini App, and `pytest` for Backend, in their respective directories.
+
+### User Acceptance Tests 
+Purpose: to Validate that the platform meets customer requirments and to ensure uninterrupted work of end users in real-life scenarios.
+
+- **Student Journey**:
+    - ✅ Search/filter courses by topic, difficulty.
+    - ✅ Enroll in a course & access materials.
+    - ✅ Receive notifications via Telegram.
+- **Admin Operations**:
+    - ✅ Create/Delete/Edit content. (upload new courses: title, description, date)
+    - ✅ View and delete users.
+    - ✅ Receive feedback about the course.
+- **Owner Options**:
+    - ✅ Manage user roles/permissions.
+    - ✅ Create/Delete/Edit content.
+
+Access to all User Acceptance Tests: [click-here.](https://docs.google.com/spreadsheets/d/1Jp7JqIxoW8Yiyg-n8kCDIGyHTjUg9X4qt4zc4_tIPqU/edit?gid=1621231740#gid=1621231740)
+(Check the last column of "Groomed Sprint 4 Backlog").
+
 
 ## Build and Deployment
 

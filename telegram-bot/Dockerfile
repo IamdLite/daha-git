@@ -13,6 +13,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gcc \
         python3-dev \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
@@ -25,20 +26,18 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Copy project files
 COPY . .
 
-# Create exports directory
-RUN mkdir -p exports
-
 # Create non-root user for security
-RUN adduser --disabled-password --gecos '' appuser \
-    && chown -R appuser:appuser /app
+RUN adduser --disabled-password --gecos '' appuser
+
+# Create directories and set proper ownership
+RUN mkdir -p exports logs \
+    && chown -R appuser:appuser /app logs
+
+# Switch to non-root user
 USER appuser
 
 # Expose port
-EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+EXPOSE 8080
 
 # Run the application
 CMD ["python", "main.py"]

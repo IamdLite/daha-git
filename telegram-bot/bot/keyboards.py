@@ -1,5 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from config.settings import settings
+from configs.settings import settings
 from bot.messages import FILTER_MENUS
 
 
@@ -66,12 +66,7 @@ class BotKeyboards:
         Returns:
             Клавиатура с кнопками курса
         """
-        return InlineKeyboardMarkup([
-            [
-                InlineKeyboardButton("Ссылка на курс", url=course_link),
-                InlineKeyboardButton("мини-приложение", web_app=WebAppInfo(url=settings.MINI_APP_URL))
-            ]
-        ])
+        return InlineKeyboardMarkup([[InlineKeyboardButton("Ссылка на курс", url=course_link)]])
 
     @staticmethod
     def get_website_keyboard() -> InlineKeyboardMarkup:

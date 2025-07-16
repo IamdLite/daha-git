@@ -54,5 +54,5 @@ Dockerfile*
 exports/
 
 # Documentation
-README.md
+BOT_README.md
 *.md

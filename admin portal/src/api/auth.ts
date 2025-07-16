@@ -1,55 +1,34 @@
-// src/api/auth.ts
-import { TELEGRAM_AUTH_URL } from '../pages/Login';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
-export interface TelegramUser {
-  id: number;
-  username?: string;
-  photo_url?: string;
-  auth_date: number;
-  hash: string;
-  first_name?: string;
-  last_name?: string;
+export interface TelegramCodeRequest {
+  username: string;
 }
 
-export const telegramLogin = async (telegramData: TelegramUser): Promise<{ access_token: string; token_type: string }> => {
-  try {
-    console.log('Sending Telegram data to backend:', telegramData);
-    console.log('Backend URL:', TELEGRAM_AUTH_URL);
-    const response = await fetch(TELEGRAM_AUTH_URL, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: telegramData.id,
-        username: telegramData.username,
-        photo_url: telegramData.photo_url,
-        auth_date: telegramData.auth_date,
-        hash: telegramData.hash,
-        first_name: telegramData.first_name,
-        last_name: telegramData.last_name,
-      }),
-    });
+export interface TelegramCodeVerify {
+  username: string;
+  code: string;
+}
 
-    console.log('Backend response status:', response.status);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Backend error response:', errorText);
-      throw new Error(`Authentication failed: ${errorText}`);
-    }
+export const requestTelegramCode = async (data: TelegramCodeRequest): Promise<{ code: string }> => {
+  const username = data.username.replace(/^@/, ''); // Normalize username
+  console.log('Mock: Requesting code for username:', username);
 
-    const data = await response.json();
-    console.log('Backend response data:', data);
-    return data; // { access_token, token_type }
-  } catch (error) {
-    console.error('telegramLogin error:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to authenticate with Telegram');
-  }
+  // Generate mock 4-digit code
+  const code = Math.floor(1000 + Math.random() * 9000).toString();
+  console.log('Mock: Generated code:', code);
+  return { code };
 };
 
-// src/api/auth.ts
+export const verifyTelegramCode = async (data: TelegramCodeVerify): Promise<{ access_token: string }> => {
+  const username = data.username.replace(/^@/, '');
+  console.log('Mock: Verifying code for username:', username, 'Code:', data.code);
+
+  // Simulate verification (UI validates code)
+  const access_token = `mock_jwt_${username}_${Date.now()}`;
+  console.log('Mock: Code verified, generated token:', access_token);
+  return { access_token };
+};
+
 export const authenticatedFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -81,4 +60,3 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     throw err;
   }
 };
-

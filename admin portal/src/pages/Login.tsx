@@ -1,81 +1,132 @@
-// src/components/Login.tsx
-import  { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import ChangeThemes from '../components/ChangesThemes';
-import { telegramLogin, TelegramUser } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
-
-export const TELEGRAM_BOT_NAME = 'daha40_bot';
-export const TELEGRAM_AUTH_URL = 'https://daha.linkpc.net/auth/telegram'; // Or ngrok URL for local testing
+import { requestTelegramCode, verifyTelegramCode, TelegramCodeRequest, TelegramCodeVerify } from '../api/auth';
+import { TextField, Button, Box, Typography } from '@mui/material';
 
 const Login = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
-  const widgetContainerRef = useRef<HTMLDivElement>(null);
-  const [widgetLoaded, setWidgetLoaded] = useState(false);
-  const [widgetError, setWidgetError] = useState<string | null>(null);
+  const [username, setUsername] = useState('');
+  const [code, setCode] = useState('');
+  const [mockCode, setMockCode] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    console.log('URL Params:', params.toString(), 'Token:', token);
-    if (token) {
-      setAuth(token);
+  const handleRequestCode = async () => {
+    setError(null);
+    setIsLoading(true);
+    console.log('Request code clicked, username:', username);
+
+    // Validate username
+    const normalizedUsername = username.replace(/^@/, '');
+    if (!normalizedUsername || normalizedUsername.length < 5) {
+      setError('Username must be at least 5 characters');
+      setIsLoading(false);
+      toast.error('Invalid username');
+      console.log('Validation failed: Username too short');
+      return;
+    }
+    if (!/^[A-Za-z0-9_]+$/.test(normalizedUsername)) {
+      setError('Username can only contain letters, numbers, and underscores');
+      setIsLoading(false);
+      toast.error('Invalid username format');
+      console.log('Validation failed: Invalid username format');
+      return;
+    }
+
+    try {
+      // Get mock code
+      const response = await requestTelegramCode({ username: normalizedUsername });
+      console.log('Mock: Code request response:', response);
+      setMockCode(response.code);
+      setIsLoading(false);
+      toast.success('Verification code sent! Check below for mock code.');
+    } catch (error) {
+      setError('Failed to request code');
+      setIsLoading(false);
+      toast.error('Failed to request code');
+      console.error('Mock: Code request error:', error);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    setError(null);
+    setIsLoading(true);
+    console.log('Verify code clicked, username:', username, 'Code:', code);
+
+    // Validate username
+    const normalizedUsername = username.replace(/^@/, '');
+    if (!normalizedUsername || normalizedUsername.length < 5) {
+      setError('Username must be at least 5 characters');
+      setIsLoading(false);
+      toast.error('Invalid username');
+      console.log('Validation failed: Username too short');
+      return;
+    }
+    if (!/^[A-Za-z0-9_]+$/.test(normalizedUsername)) {
+      setError('Username can only contain letters, numbers, and underscores');
+      setIsLoading(false);
+      toast.error('Invalid username format');
+      console.log('Validation failed: Invalid username format');
+      return;
+    }
+
+    // Validate code
+    if (!code || code.length !== 4 || !/^\d{4}$/.test(code)) {
+      setError('Code must be a 4-digit number');
+      setIsLoading(false);
+      toast.error('Invalid code');
+      console.log('Validation failed: Invalid code format');
+      return;
+    }
+    if (!mockCode) {
+      setError('No code requested. Please request a code first.');
+      setIsLoading(false);
+      toast.error('Request a code first');
+      console.log('Validation failed: No mock code available');
+      return;
+    }
+    if (code !== mockCode) {
+      setError('Incorrect verification code');
+      setIsLoading(false);
+      toast.error('Incorrect code');
+      console.log('Validation failed: Code mismatch, entered:', code, 'expected:', mockCode);
+      return;
+    }
+
+    try {
+      // Verify mock code
+      const response = await verifyTelegramCode({ username: normalizedUsername, code });
+      console.log('Mock: Code verification response:', response);
+      setAuth(response.access_token);
+      setIsLoading(false);
       toast.success('Login successful!');
       navigate('/home');
-      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (error) {
+      setError('Failed to verify code');
+      setIsLoading(false);
+      toast.error('Failed to verify code');
+      console.error('Mock: Code verification error:', error);
     }
-  }, [navigate, setAuth]);
+  };
 
-  useEffect(() => {
-    if (widgetContainerRef.current && !widgetContainerRef.current.hasChildNodes()) {
-      widgetContainerRef.current.innerHTML = '';
-
-      const script = document.createElement('script');
-      script.src = 'https://telegram.org/js/telegram-widget.js?22';
-      script.async = true;
-      script.setAttribute('data-telegram-login', TELEGRAM_BOT_NAME);
-      script.setAttribute('data-size', 'large');
-      script.setAttribute('data-auth-url', TELEGRAM_AUTH_URL);
-      script.setAttribute('data-request-access', 'write');
-      script.setAttribute('data-radius', '12');
-      script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-
-      (window as any).onTelegramAuth = (user: TelegramUser) => {
-        console.log('Telegram Auth Data:', user);
-        telegramLogin(user)
-          .then((response) => {
-            console.log('Backend Response:', response);
-            setAuth(response.access_token);
-            toast.success('Login successful!');
-            navigate('/home');
-          })
-          .catch((error) => {
-            console.error('Login Error:', error);
-            setWidgetError(error.message || 'Authentication failed. Check console for details.');
-          });
-      };
-
-      script.onload = () => {
-        console.log('Telegram widget loaded');
-        setWidgetLoaded(true);
-      };
-      script.onerror = () => {
-        console.error('Failed to load Telegram widget');
-        setWidgetError('Failed to load Telegram Login Widget.');
-      };
-
-      widgetContainerRef.current.appendChild(script);
-    }
-
-    return () => {
-      if (widgetContainerRef.current) {
-        widgetContainerRef.current.innerHTML = '';
-      }
-      delete (window as any).onTelegramAuth;
-    };
-  }, [navigate, setAuth]);
+  const handleDebug = () => {
+    console.group('Debug State');
+    console.log('Username:', username);
+    console.log('Code:', code);
+    console.log('Mock Code:', mockCode);
+    console.log('Is Loading:', isLoading);
+    console.log('Error:', error);
+    console.log('LocalStorage:', {
+      isAuthenticated: localStorage.getItem('isAuthenticated'),
+      access_token: localStorage.getItem('access_token'),
+    });
+    console.groupEnd();
+    toast('Debug info logged to console');
+  };
 
   return (
     <div
@@ -105,46 +156,96 @@ const Login = () => {
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
           <ChangeThemes />
         </div>
-        <div style={{ textAlign: 'center', width: '100%' }}>
-          <span style={{ fontSize: 26, fontWeight: 700, color: '#3b3b3b', letterSpacing: 0.5 }}>
-            DAHA Admin Portal
-          </span>
-        </div>
-        <div style={{ textAlign: 'center', width: '100%' }}>
-          <span style={{ fontSize: 18, fontWeight: 500, color: '#6366f1' }}>
-            Hello, 👋 Welcome Back!
-          </span>
-        </div>
-        <div
-          ref={widgetContainerRef}
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 48,
-            width: '100%',
-            margin: '16px 0 8px 0',
-          }}
-        ></div>
-        {widgetError && (
-          <div style={{ color: '#ef4444', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
-            {widgetError}
-            <br />
-            Please verify:
-            <br />
-            1. Bot name (@pooocheeemy_bot) is correct
-            <br />
-            2. Domain is whitelisted in BotFather
-            <br />
-            3. Backend URL is accessible (HTTPS)
-            <br />
-            4. Check browser console for errors
-          </div>
+        <Typography variant="h4" style={{ fontSize: 26, fontWeight: 700, color: '#3b3b3b', letterSpacing: 0.5 }}>
+          DAHA Admin Portal
+        </Typography>
+        <Typography variant="h6" style={{ fontSize: 18, fontWeight: 500, color: '#6366f1' }}>
+          Hello, 👋 Welcome Back!
+        </Typography>
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Telegram Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your Telegram username (e.g., @username)"
+            variant="outlined"
+            disabled={isLoading}
+            sx={{ mb: 2 }}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleRequestCode}
+            disabled={isLoading || !username}
+            sx={{
+              backgroundColor: '#6366f1',
+              color: '#fff',
+              textTransform: 'none',
+              borderRadius: '8px',
+              padding: '0.75rem',
+              '&:hover': { backgroundColor: '#4f46e5' },
+            }}
+          >
+            {isLoading ? 'Sending...' : 'Send Verification Code'}
+          </Button>
+        </Box>
+        {mockCode && (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <Typography style={{ color: '#6366f1', fontSize: 14, textAlign: 'center', marginBottom: 8 }}>
+              Mock Code (for testing): {mockCode}
+            </Typography>
+            <TextField
+              fullWidth
+              label="Verification Code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Enter the 4-digit code"
+              variant="outlined"
+              disabled={isLoading}
+              sx={{ mb: 2 }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleVerifyCode}
+              disabled={isLoading || !code}
+              sx={{
+                backgroundColor: '#6366f1',
+                color: '#fff',
+                textTransform: 'none',
+                borderRadius: '8px',
+                padding: '0.75rem',
+                '&:hover': { backgroundColor: '#4f46e5' },
+              }}
+            >
+              {isLoading ? 'Verifying...' : 'Verify Code'}
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleDebug}
+              sx={{ mt: 1, textTransform: 'none', borderRadius: '8px', padding: '0.5rem' }}
+            >
+              Debug
+            </Button>
+          </Box>
         )}
-        {!widgetLoaded && !widgetError && (
-          <div style={{ color: '#6366f1', fontSize: 14, textAlign: 'center' }}>
-            Loading Telegram Login Widget...
-          </div>
+        {error && (
+          <Typography style={{ color: '#ef4444', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
+            {error}
+            <br />
+            Please ensure:
+            <br />
+            1. Username is at least 5 characters (e.g., @username)
+            <br />
+            2. Code is a 4-digit number
+          </Typography>
+        )}
+        {isLoading && !error && (
+          <Typography style={{ color: '#6366f1', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
+            Processing...
+          </Typography>
         )}
       </div>
     </div>
