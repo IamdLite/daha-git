@@ -124,7 +124,7 @@ DAHA is a zero-cost course aggregation platform designed to empower high school 
 
 DAHA offers multiple access points:
 
-- 🌐 **Frontend**: [https://daha.linkpc.net/](https://daha.linkpc.net/)
+- 🌐 **Frontend**: [https://daha-git.vercel.app](https://daha-git.vercel.app)
 - 📱 **Mini App**: [https://t.me/daha_DAHA_bot/webapp](https://t.me/daha_DAHA_bot/webapp)
 - 🔐 **Admin Panel**: [https://dahaadmin.vercel.app/](https://dahaadmin.vercel.app/) (auth with telegram111)
 - ⚙️ **API**: [https://daha.linkpc.net/api/courses](https://daha.linkpc.net/api/courses)
