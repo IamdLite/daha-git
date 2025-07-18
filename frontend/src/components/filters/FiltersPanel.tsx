@@ -1,6 +1,7 @@
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { useEffect, useState } from "react";
 import { FilterState, FilterHandlers } from "../../hooks/useFilters";
 import DifficultyFilter from "./DifficultyFilter";
 import GradeFilter from "./GradeFilter";
@@ -11,23 +12,24 @@ interface FiltersPanelProps {
   handlers: FilterHandlers;
   isMobile: boolean;
   onClose?: () => void;
-  contentWidth?: number;
   cardStart?: number;      // Left X of cards in px
   panelGap?: number;       // Desired gap between panel and cards
   footerHeight?: number;
+  setPanelLeft?: (left: number) => void; // Parent syncs margin-left for cards
 }
 
 const FILTER_PANEL_WIDTH = 340;
+const INITIAL_PANEL_LEFT = 150;
 
 const FiltersPanel: React.FC<FiltersPanelProps> = ({
   filters,
   handlers,
   isMobile,
   onClose,
-  contentWidth = 1200,
-  cardStart = 270,       // Example: cards start at 270px from left
-  panelGap = 24,         // Gap between panel and cards
+  cardStart = 400,   
+  panelGap = 24,
   footerHeight = 80,
+  setPanelLeft,
 }) => {
   const theme = useTheme();
   const { selectedSubjects, selectedDifficulty, selectedGrades } = filters;
@@ -35,20 +37,30 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
   const hasActiveFilters =
     selectedSubjects.length > 0 || selectedDifficulty.length > 0 || selectedGrades.length > 0;
 
-  // Calculate left for desktop:
-  // (panel sits flush with left edge, but keeps its right edge gap from cards)
-  const panelLeft = 150;  // Left margin from viewport (customize as needed)
-  const maxRight = cardStart - panelGap; // Make sure panel's right edge < card's left edge
+  // Shifting logic
+  const [panelLeft, _setPanelLeft] = useState(INITIAL_PANEL_LEFT);
+  useEffect(() => {
+    function handleResize() {
+      // Where would the panel need to be to never overlap cards?
+      const maxLeft = Math.max(0, cardStart - panelGap - FILTER_PANEL_WIDTH);
+      const nextLeft = Math.min(INITIAL_PANEL_LEFT, maxLeft);
+      _setPanelLeft(nextLeft);
+      setPanelLeft?.(nextLeft);
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line
+  }, [cardStart, panelGap, setPanelLeft]);
 
   return (
     <Box
       sx={{
         position: "fixed",
         top: { xs: 0, sm: "96px" },
-        left: { xs: 0, sm: panelLeft },
+        left: { xs: 0, sm: `${panelLeft}px` },
         width: { xs: "100%", sm: FILTER_PANEL_WIDTH },
         maxWidth: { xs: "100%", sm: FILTER_PANEL_WIDTH },
-        right: { xs: 0, sm: "auto" },
         minHeight: { xs: `calc(100vh - ${footerHeight}px)`, sm: `calc(100vh - 96px - ${footerHeight}px)` },
         maxHeight: { xs: `calc(100vh - ${footerHeight}px)`, sm: `calc(100vh - 96px - ${footerHeight}px)` },
         background: theme.palette.mode === "light"
@@ -68,15 +80,11 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
         outline: `2px solid ${theme.palette.primary.light}`,
         outlineOffset: "-2px",
         "&:focus": { outline: `2px solid ${theme.palette.primary.main}` },
-        "&::-webkit-scrollbar": {
-          width: "7px"
-        },
+        "&::-webkit-scrollbar": { width: "7px" },
         "&::-webkit-scrollbar-thumb": {
           backgroundColor: theme.palette.action.selected,
           borderRadius: "3px"
-        },
-        // Prevent panel from overlapping card area
-        maxRight: { sm: maxRight },
+        }
       }}
       tabIndex={-1}
       aria-label="Фильтры"
@@ -154,9 +162,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
               textTransform: "none",
               backgroundColor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.dark,
-              },
+              "&:hover": { backgroundColor: theme.palette.primary.dark },
             }}
           >
             Сбросить фильтры

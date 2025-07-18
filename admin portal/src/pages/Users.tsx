@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import DataTable from "../components/DataTable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,13 +7,12 @@ import {
   HiOutlineCheck,
   HiOutlineXMark,
 } from "react-icons/hi2";
-import AddData from "../components/AddData";
+
 import {
   Category,
   Grade,
   User,
   fetchUsers,
-  updateUserPreferences,
   deleteUser,
   fetchCategories,
   fetchGrades,
@@ -29,9 +28,9 @@ import {
 } from "@mui/material";
 
 const Users = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [grades, setGrades] = useState<Grade[]>([]);
+  //const [isOpen, setIsOpen] = useState(false);
+  //const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [, setGrades] = useState<Grade[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const queryClient = useQueryClient();
 
