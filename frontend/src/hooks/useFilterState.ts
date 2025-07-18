@@ -50,7 +50,9 @@ export const useFilters = (): {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL;
+                const apiUrl = axios.create({
+             baseURL: process.env.REACT_APP_API_URL || 'https://daha.linkpc.net'
+        });
         console.log("Fetching from:", `${apiUrl}/api/courses`);
         const response = await axios.get(`${apiUrl}/api/courses?limit=100`, {
           params: {

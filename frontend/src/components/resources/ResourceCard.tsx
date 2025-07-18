@@ -1,6 +1,7 @@
 import { Card, CardContent, Typography, Button, Box, Chip, Stack, useTheme } from "@mui/material";
 import React from "react";
-import { Resource, Subject, DifficultyLevel} from "../../types";
+import { Resource, Subject, DifficultyLevel } from "../../types";
+
 interface ResourceCardProps {
   resource: Resource;
 }
@@ -45,7 +46,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
 
   // Extract and normalize grades from resource
   const getGradeLabels = (): string[] => {
-    // First try grades (GradeLevel array)
     if (resource.grades && Array.isArray(resource.grades)) {
       return resource.grades
         .map(grade => grade?.level?.toString())
@@ -55,7 +55,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         );
     }
     
-    // Fallback to gradesEnum (string array)
     if (resource.gradesEnum && Array.isArray(resource.gradesEnum)) {
       return resource.gradesEnum
         .filter((grade): grade is string => 
@@ -69,7 +68,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
 
   const gradeLabelsToShow = getGradeLabels();
   const organizer = resource.provider || "Неизвестный организатор";
-  const subject = resource.category.name as Subject;
+  const subject = resource.category?.name as Subject;
   const difficultyLevel = resource.level as DifficultyLevel;
   const startDate = resource.startDate || resource.created_at || "2025-06-01";
   const endDate = resource.endDate || resource.updated_at || "2025-12-31";
@@ -94,25 +93,25 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       width: "100%"
     }}>
       <CardContent sx={{ 
-        pt: { xs: 2.5, sm: 3, md: 3.5 },
+        pt: { xs: 2, sm: 2.5, md: 3 },
         pb: { xs: 1.5, sm: 2 },
         flexGrow: 1, 
         px: { xs: 2, sm: 2.5, md: 3 },
         display: "flex", 
         flexDirection: "column",
-        gap: { xs: 1, sm: 1.5 }
+        gap: { xs: 1, sm: 1.25, md: 1.5 }
       }}>
         {/* Title */}
         <Typography 
           component="div" 
           variant="h5" 
           sx={{ 
-            fontSize: { xs: "1.2rem", sm: "1.35rem", md: "1.5rem" },
+            fontSize: { xs: "1.15rem", sm: "1.3rem", md: "1.5rem" },
             fontWeight: 700,
             letterSpacing: "-0.01em",
             lineHeight: 1.2,
             color: "#4361ee",
-            mb: { xs: 0.3, sm: 0.5 }
+            mb: { xs: 0.5, sm: 0.75 }
           }}
         >
           {resource.title}
@@ -123,8 +122,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           variant="body1" 
           sx={{ 
             fontWeight: 600,
-            fontSize: { xs: "1rem", sm: "1.05rem", md: "1.1rem" },
-            mb: { xs: 0.5, sm: 1 },
+            fontSize: { xs: "0.9rem", sm: "1rem", md: "1.05rem" },
+            mb: { xs: 0.75, sm: 1 },
             color: "#616161"
           }}
         >
@@ -136,8 +135,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           variant="h6"
           sx={{
             fontWeight: 600,
-            fontSize: { xs: "1.2rem", sm: "1.25rem", md: "1.35rem" },
-            mb: { xs: 1.5, sm: 2 },
+            fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+            mb: { xs: 1.25, sm: 1.75 },
             color: "#000",
             letterSpacing: "-0.01em"
           }}
@@ -146,50 +145,54 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         </Typography>
 
         {/* Grades and Difficulty Chips */}
-        <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Stack 
+          direction="row" 
+          spacing={{ xs: 0.5, sm: 0.75 }} 
+          flexWrap="wrap" 
+          useFlexGap 
+          sx={{ mb: { xs: 1.5, sm: 2 } }}
+        >
           {gradeLabelsToShow.map((grade) => (
             <Chip
               key={grade}
               label={`${grade} класс`}
-              size="medium"
+              size="small"
               sx={{
                 borderRadius: { xs: "4px", sm: "6px" },
                 backgroundColor: "#f5f5f5",
                 color: "#333",
-                px: { xs: 1, sm: 1.5 },
-                py: { xs: 2, sm: 2.5 },
+                px: { xs: 0.5, sm: 1 },
                 height: "auto",
-                mb: 1,
+                mb: 0.5,
                 fontWeight: 500,
-                fontSize: { xs: "0.85rem", sm: "0.9rem" }
+                fontSize: { xs: "0.75rem", sm: "0.8rem" }
               }}
             />
           ))}
           <Chip
             label={difficultyLabels[difficultyLevel]}
-            size="medium"
+            size="small"
             sx={{
               borderRadius: { xs: "4px", sm: "6px" },
               backgroundColor: "#f0f7ff",
               color: "#0066cc",
-              px: { xs: 1, sm: 1.5 },
-              py: { xs: 2, sm: 2.5 },
+              px: { xs: 0.5, sm: 1 },
               height: "auto",
-              mb: 1,
+              mb: 0.5,
               fontWeight: 500,
-              fontSize: { xs: "0.85rem", sm: "0.9rem" }
+              fontSize: { xs: "0.75rem", sm: "0.8rem" }
             }}
           />
         </Stack>
 
         {/* Description */}
-        <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
+        <Box sx={{ mb: { xs: 1.75, sm: 2.25, md: 2.5 } }}>
           <Typography
             variant="body1"
             sx={{
-              lineHeight: { xs: 1.5, sm: 1.6 },
+              lineHeight: { xs: 1.45, sm: 1.5 },
               color: "#333333",
-              fontSize: { xs: "0.95rem", sm: "1rem" }
+              fontSize: { xs: "0.875rem", sm: "0.9375rem", md: "1rem" }
             }}
           >
             {resource.description}
@@ -197,31 +200,34 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         </Box>
 
         {/* Subject Chip */}
-        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-          <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mb: 0.5 }}>
-            <Chip 
-              label={subjectConfig[subject].label} 
-              size="medium" 
-              sx={{ 
-                mb: 0.75,
-                fontWeight: 500,
-                fontSize: { xs: "0.85rem", sm: "0.9rem" },
-                backgroundColor: `${subjectConfig[subject].color}10`,
-                color: subjectConfig[subject].color,
-                height: { xs: "28px", sm: "32px" },
-                borderRadius: { xs: "4px", sm: "6px" },
-                px: { xs: 0.5, sm: 1 },
-                "&:hover": {
-                  backgroundColor: `${subjectConfig[subject].color}20`,
-                }
-              }}
-            />
-          </Stack>
+        <Box sx={{ mb: { xs: 1.25, sm: 1.75 } }}>
+          <Chip 
+            label={subjectConfig[subject].label} 
+            size="small" 
+            sx={{ 
+              fontWeight: 500,
+              fontSize: { xs: "0.75rem", sm: "0.8rem" },
+              backgroundColor: `${subjectConfig[subject].color}10`,
+              color: subjectConfig[subject].color,
+              height: { xs: "26px", sm: "28px" },
+              borderRadius: { xs: "4px", sm: "6px" },
+              px: { xs: 0.5, sm: 0.75 },
+              "&:hover": {
+                backgroundColor: `${subjectConfig[subject].color}20`,
+              }
+            }}
+          />
         </Box>
       </CardContent>
       
       {/* Link Button */}
-      <Box sx={{ display: "flex", justifyContent: "flex-start", px: { xs: 2, sm: 2.5, md: 3 }, pb: { xs: 2, sm: 2.5, md: 3 }, mt: "auto" }}>
+      <Box sx={{ 
+        display: "flex", 
+        justifyContent: "flex-start", 
+        px: { xs: 2, sm: 2.5, md: 3 }, 
+        pb: { xs: 2, sm: 2.5, md: 3 },
+        mt: "auto" 
+      }}>
         <Button 
           variant="contained" 
           href={resource.url} 
@@ -229,11 +235,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
           rel="noopener"
           sx={{ 
             borderRadius: "4px",
-            px: { xs: 3, sm: 3.5, md: 4 },
-            py: { xs: 0.75, sm: 1 },
+            px: { xs: 2.5, sm: 3, md: 3.5 },
+            py: { xs: 0.5, sm: 0.75 },
             fontWeight: 600,
             letterSpacing: "0.01em",
-            fontSize: { xs: "0.9rem", sm: "0.95rem" },
+            fontSize: { xs: "0.8rem", sm: "0.875rem", md: "0.9rem" },
             boxShadow: "none",
             backgroundColor: "#000",
             color: "#fff",

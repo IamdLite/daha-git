@@ -15,14 +15,14 @@ class Settings:
     WEBHOOK_URL = os.getenv("WEBHOOK_URL").rstrip('/webhook')
     MINI_APP_URL = 'https://daha-git.vercel.app/'
 
-    BASE_URL = os.getenv("API_BASE_URL") or 'https://daha.linkpc.net'
+    BASE_URL = os.getenv("BASE_URL") # or 'https://ocoqqb-ip-188-130-155-152.tunnelmole.net'
     API_KEY = os.getenv("API_KEY")
     TIMEOUT = int(os.getenv("API_TIMEOUT", "30"))
     DEFAULT_LIMIT = int(os.getenv("API_DEFAULT_LIMIT", "100"))
     MAX_LIMIT = int(os.getenv("API_MAX_LIMIT", "100"))
 
     # API configuration
-    USER_DATA_API_ENDPOINT = f'{BASE_URL}api/users/me/preferences'
+    USER_DATA_API_ENDPOINT = f'{BASE_URL}/api/bot/user/register-or-update'
     API_TOKEN = os.getenv("API_TOKEN")
 
     # Admin configuration
@@ -39,14 +39,6 @@ class Settings:
             raise ValueError("Ошибка: MINI_APP_URL не установлен в файле .env или в переменных окружения.")
 
 settings = Settings()
-
-# Маппинг фильтров бота на параметры API
-FILTER_MAPPING = {
-    'subjects': 'category_id',  # Предметы -> категории
-    'difficulty': 'level',  # Сложность -> уровень
-    'grade': 'grade_id'  # Класс -> ID класса
-}
-
 
 SUBJECT_TO_CATEGORY = {
     "ИИ 🤖": 1,

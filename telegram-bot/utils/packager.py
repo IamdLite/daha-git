@@ -1,169 +1,139 @@
-import json
-import os
-from datetime import datetime
+# packager.py
+
+import asyncio
+import logging
 from typing import Dict, Any, Set
-import requests
+
+from telegram import Update
+from telegram.ext import ContextTypes
+
+from api.client import CourseAPIClient, APIError
+from data.courses import course_filter, SUBJECT_TO_CATEGORY, DIFFICULTY_TO_LEVEL, GRADE_TO_ID
+from bot.keyboards import BotKeyboards
+
+logger = logging.getLogger(__name__)
+
+def _format_user_payload(user_id: int, username: str, user_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Formats the user filter data into the required API payload.
+    
+    Note: The specified API format accepts only a single value for category,
+    level, and grade. This function will use the first selected item for each.
+    """
+    selected_subjects: Set[str] = user_data.get('subjects', set())
+    selected_difficulty: Set[str] = user_data.get('difficulty', set())
+    selected_grades: Set[str] = user_data.get('grade', set())
+    
+    saved_filters = {}
+
+    # Format category_id
+    if selected_subjects:
+        first_subject = next(iter(selected_subjects), None)
+        if first_subject in SUBJECT_TO_CATEGORY:
+            saved_filters['category_id'] = SUBJECT_TO_CATEGORY[first_subject]
+
+    # Format level
+    if selected_difficulty:
+        first_difficulty = next(iter(selected_difficulty), None)
+        if first_difficulty in DIFFICULTY_TO_LEVEL:
+            saved_filters['level'] = DIFFICULTY_TO_LEVEL[first_difficulty]
+    
+    # Format grade object
+    if selected_grades:
+        first_grade_name = next(iter(selected_grades), None) # e.g., '7 класс'
+        if first_grade_name in GRADE_TO_ID:
+            grade_id = GRADE_TO_ID[first_grade_name]
+            # Extract numeric level from string (e.g., '7' from '7 класс')
+            grade_level = int(first_grade_name.split(' ')[0])
+            saved_filters['grade'] = {"id": grade_id, "level": grade_level}
+
+    payload = {
+        "id": user_id,
+        "username": username or "N/A",
+        "saved_filters": saved_filters,
+        "notifications": "yes"  # Set to "yes" by default as requested
+    }
+    
+    return payload
 
 
-class Packager:
-    def __init__(self, api_endpoint: str = None):
-        """
-        Инициализация упаковщика данных пользователей
+async def browse_courses(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    
+    user = update.effective_user
+    logger.info(f"User {user.id} ({user.username}) is attempting to browse courses.")
 
-        Args:
-            api_endpoint: URL API для отправки данных
-        """
-        self.api_endpoint = api_endpoint or os.getenv("USER_DATA_API_ENDPOINT")
+    try:
+        api_client = CourseAPIClient()
+        configure_filters = {}
+        if context.user_data.get('subjects'):
+            context.user_data['subjects'] = context.user_data.get('subjects')
+        if context.user_data.get('difficulty'):
+            context.user_data['difficulty'] = context.user_data.get('difficulty')
+        if context.user_data.get('grade'):
+            context.user_data['grade'] = context.user_data.get('grade')
 
-    def convert_sets_to_lists(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Конвертирует set объекты в списки для JSON сериализации
+        courses = course_filter.filter_courses(configure_filters)
+        
+        logger.info(f"Successfully found courses for user {user.id} via API.")
+        await query.edit_message_text(text=f"Найдено {len(courses)} курсов по вашему запросу")
 
-        Args:
-            data: Словарь с данными пользователя
+        if courses:
+            for course in courses:
+                message = course_filter.format_course_message(course)
+                keyboard = BotKeyboards.get_course_keyboard(course.get("url"))
+                await query.message.reply_text(message, reply_markup=keyboard)
 
-        Returns:
-            Словарь с конвертированными данными
-        """
-        converted_data = {}
-        for key, value in data.items():
-            if isinstance(value, set):
-                converted_data[key] = list(value)
-            else:
-                converted_data[key] = value
-        return converted_data
+    except APIError as e:
+        logger.error(f"Failed to save filters for user {user.id}: {e}")
+        await query.edit_message_text(text="🚫 Произошла ошибка при сохранении фильтров. Пожалуйста, попробуйте еще раз позже.")
+        # await query.edit_message_text(text="DB IS DOWN, COURSE PULLING IS OFF FOR NOW") # TODO remove
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in save_and_show_filters for user {user.id}: {e}", exc_info=True)
+        await query.edit_message_text(text="🚫 Произошла непредвиденная ошибка.")
 
-    def export_user_filters_to_json(self, user_filters: Dict[int, Dict[str, Any]],
-                                    filename: str = None) -> str:
-        """
-        Экспортирует фильтры пользователей в JSON файл
 
-        Args:
-            user_filters: Словарь с фильтрами пользователей
-            filename: Имя файла для сохранения (опционально)
+async def save_and_show_filters(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    Saves the user's filters by sending them to the backend API
+    and displays the selected filters back to the user.
+    """
+    query = update.callback_query
+    await query.answer()
+    
+    user = update.effective_user
+    logger.info(f"User {user.id} ({user.username}) is saving filters to the API.")
 
-        Returns:
-            Путь к созданному JSON файлу
-        """
-        if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"exports/user_filters_{timestamp}.json"
+    try:
+        # 1. Format the payload for the API
+        payload = _format_user_payload(user.id, user.username, context.user_data)
+        
+        # 2. Send data to the API in a non-blocking way
+        api_client = CourseAPIClient()
+        await asyncio.to_thread(api_client.register_or_update_user, payload)
+        
+        logger.info(f"Successfully saved filters for user {user.id} via API.")
 
-        # Создаем папку exports если её нет
-        os.makedirs(os.path.dirname(filename) if os.path.dirname(filename) else "exports", exist_ok=True)
+        # 3. Create a confirmation message for the user
+        message_parts = ["✅ *Ваши фильтры сохранены!*\n"]
+        if context.user_data.get('subjects'):
+            message_parts.append(f"Предметы: {', '.join(context.user_data['subjects'])}")
+        if context.user_data.get('difficulty'):
+            message_parts.append(f"Сложность: {', '.join(context.user_data['difficulty'])}")
+        if context.user_data.get('grade'):
+            message_parts.append(f"Класс: {', '.join(context.user_data['grade'])}")
+        
+        if len(message_parts) == 1:
+            message_parts.append("У вас не выбрано ни одного фильтра.")
+            
+        message = "\n".join(message_parts)
+        await query.edit_message_text(text=message, parse_mode='Markdown')
 
-        # Конвертируем данные для JSON сериализации
-        json_data = {
-            "export_timestamp": datetime.now().isoformat(),
-            "total_users": len(user_filters),
-            "export_type": "filter_save",
-            "users": {}
-        }
-
-        for user_id, user_data in user_filters.items():
-            converted_data = self.convert_sets_to_lists(user_data)
-            json_data["users"][str(user_id)] = converted_data
-
-        # Сохраняем в файл
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(json_data, f, ensure_ascii=False, indent=2)
-
-        print(f"Данные пользователей упакованы в файл: {filename}")
-        return filename
-
-    def send_to_api(self, user_filters: Dict[int, Dict[str, Any]],
-                    headers: Dict[str, str] = None) -> bool:
-        """
-        Отправляет данные пользователей в API
-
-        Args:
-            user_filters: Словарь с фильтрами пользователей
-            headers: Дополнительные заголовки для запроса
-
-        Returns:
-            True если отправка успешна, False в противном случае
-        """
-        if not self.api_endpoint:
-            print("Предупреждение: API endpoint не настроен, пропускаем отправку в API")
-            return False
-
-        # Подготавливаем данные
-        json_data = {
-            "export_timestamp": datetime.now().isoformat(),
-            "total_users": len(user_filters),
-            "export_type": "filter_save",
-            "users": {}
-        }
-
-        for user_id, user_data in user_filters.items():
-            converted_data = self.convert_sets_to_lists(user_data)
-            json_data["users"][str(user_id)] = converted_data
-
-        # Устанавливаем заголовки по умолчанию
-        default_headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "DAHA-Bot-Packager/1.0"
-        }
-
-        if headers:
-            default_headers.update(headers)
-
-        try:
-            response = requests.post(
-                self.api_endpoint,
-                json=json_data,
-                headers=default_headers,
-                timeout=30
-            )
-
-            if response.status_code in [200, 201]:
-                print(f"Данные успешно отправлены в API: {self.api_endpoint}")
-                return True
-            else:
-                print(f"Ошибка при отправке в API: {response.status_code} - {response.text}")
-                return False
-
-        except requests.exceptions.RequestException as e:
-            print(f"Ошибка при отправке запроса в API: {e}")
-            return False
-
-    def package_and_send(self, user_filters: Dict[int, Dict[str, Any]],
-                         save_local: bool = True, send_api: bool = True,
-                         filename: str = None, headers: Dict[str, str] = None) -> Dict[str, Any]:
-        """
-        Упаковывает данные локально и отправляет в API
-
-        Args:
-            user_filters: Словарь с фильтрами пользователей
-            save_local: Сохранить локально в JSON файл
-            send_api: Отправить в API
-            filename: Имя файла для локального сохранения
-            headers: Заголовки для API запроса
-
-        Returns:
-            Словарь с результатами операций
-        """
-        # This is a hypothetical implementation based on your code
-        results = {
-            'local_export_success': False,
-            'api_export_success': False
-        }
-
-        if save_local:
-            try:
-                # ... your existing code to save the file locally ...
-                # If the code above executes without error, set the success flag
-                results['local_export_success'] = True
-            except Exception as e:
-                # Handle potential exceptions during file save
-                print(f"Error saving locally: {e}")
-                results['local_export_success'] = False
-
-        if send_api:
-            try:
-                api_success = self.send_to_api(user_filters, headers)
-                results["api_export"]["success"] = api_success
-            except Exception as e:
-                print(f"Ошибка при отправке в API: {e}")
-
-        return results
+    except APIError as e:
+        logger.error(f"Failed to save filters for user {user.id}: {e}")
+        # await query.edit_message_text(text="🚫 Произошла ошибка при сохранении фильтров. Пожалуйста, попробуйте еще раз позже.")
+        await query.edit_message_text(text="DB IS DOWN, COURSE PULLING IS OFF FOR NOW") # TODO remove
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in save_and_show_filters for user {user.id}: {e}", exc_info=True)
+        await query.edit_message_text(text="🚫 Произошла непредвиденная ошибка.")

@@ -1,63 +1,92 @@
+import TelegramIcon from "@mui/icons-material/Telegram";
 import {
   AppBar,
   Toolbar,
   Typography,
   Container,
   Box,
-  useTheme,
   Button,
   Avatar,
   IconButton,
   Menu,
   MenuItem,
   Divider,
+  TextField,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
-import React, { useState, useEffect, useRef } from "react";
-import { Toaster, toast as hotToast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { telegramLogin, TelegramUser } from "../../../api/auth";
+import { useTheme } from "@mui/material/styles";
+import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
+import { Toaster, toast } from "react-hot-toast";
+import { requestTelegramCode, verifyTelegramCode } from "../../../api/auth";
 import logo from "../../../assets/daha-logo.png";
 
-export const TELEGRAM_BOT_NAME = "pooocheeemy_bot";
-export const TELEGRAM_AUTH_URL = "https://daha.linkpc.net/auth/telegram";
+const TELEGRAM_BOT = "@bot_DAHA_bot";
+const TELEGRAM_BOT_LINK = "https://t.me/bot_DAHA_bot";
 
-declare global {
-  interface Window {
-    onTelegramAuth?: (user: TelegramUser) => void;
-  }
-}
+const botStepInstructions = (
+  <Box sx={{ pb: 2 }}>
+    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+      Для авторизации выполните следующие шаги:
+    </Typography>
+    <Box component="ol" sx={{ pl: 3 }}>
+      <li style={{ margin: "0 0 8px 0" }}>
+        Перейдите в{" "}
+        <Button
+          component="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={TELEGRAM_BOT_LINK}
+          startIcon={<TelegramIcon />}
+          variant="contained"
+          size="small"
+          sx={{
+            fontWeight: 600,
+            textTransform: "none",
+            px: 2,
+            background: "#229ED9",
+            color: "#fff",
+            borderRadius: "8px",
+            ml: 0.5,
+            mb: "-2px",
+            "&:hover": {
+              background: "#229ed9cc",
+            },
+          }}
+        >
+          {TELEGRAM_BOT}
+        </Button>
+      </li>
+      <li style={{ margin: "0 0 8px 0" }}>
+        В боте отправьте команду <b>/setfilters</b> и выберите ваши предпочтения.
+      </li>
+      <li>
+        Вернитесь на сайт и войдите под своим Telegram-логином.
+      </li>
+    </Box>
+  </Box>
+);
 
 const Header = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
-  const [showWidget, setShowWidget] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState<"username" | "code" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [errorMsg, setErrorMsg] = useState(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    if (token) {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("access_token", token);
-      localStorage.setItem("username", "user");
-      setIsAuthenticated(true);
-      setUsername("user");
-      hotToast.success("Login successful!");
-      navigate("/");
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [navigate]);
+  // refs для управления фокусом
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem("isAuthenticated");
     const storedUsername = localStorage.getItem("username");
     const storedToken = localStorage.getItem("access_token");
-
     if (storedAuth === "true" && storedUsername && storedToken) {
       setIsAuthenticated(true);
       setUsername(storedUsername);
@@ -65,56 +94,113 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    if (!showWidget || !widgetContainerRef.current) return;
+    if (step === "username" && usernameInputRef.current) {
+      usernameInputRef.current.focus();
+    }
+    if (step === "code" && codeInputRef.current) {
+      codeInputRef.current.focus();
+    }
+  }, [step]);
 
-    const container = widgetContainerRef.current;
-    container.innerHTML = "";
+ // const botErrorMsg = "Не удалось выполнить авторизацию.";
 
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", TELEGRAM_BOT_NAME);
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-auth-url", TELEGRAM_AUTH_URL);
-    script.setAttribute("data-request-access", "write");
-    script.setAttribute("data-radius", "12");
-    script.setAttribute("data-onauth", "onTelegramAuth(user)");
+  const setBotError = () => setErrorMsg(true);
 
-    window.onTelegramAuth = async (user: TelegramUser) => {
-      setIsLoading(true);
-      try {
-        const fallbackUsername = user.username || user.first_name || `user_${user.id.toString().slice(-4)}`;
-        const { access_token } = await telegramLogin({
-          ...user,
-          username: fallbackUsername
-        });
-
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("username", fallbackUsername);
-        setIsAuthenticated(true);
-        setUsername(fallbackUsername);
-        setShowWidget(false);
-        hotToast.success(`Welcome ${fallbackUsername}!`);
-        navigate("/");
-      } catch (error) {
-        hotToast.error(error instanceof Error ? error.message : "Login failed");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    container.appendChild(script);
-
-    return () => {
-      container.innerHTML = "";
-      delete window.onTelegramAuth;
-    };
-  }, [showWidget, navigate]);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleRequestCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+    setErrorMsg(false);
+    const normalizedUsername = username.replace(/^@/, "");
+    if (!normalizedUsername || normalizedUsername.length < 5) {
+      setBotError();
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[A-Za-z0-9_]+$/.test(normalizedUsername)) {
+      setBotError();
+      setIsLoading(false);
+      return;
+    }
+    try {
+      await requestTelegramCode({ username: normalizedUsername });
+      setStep("code");
+      toast.success(
+        <span>
+          Код выслан! Проверьте сообщения в боте{" "}
+          <Button
+            href={TELEGRAM_BOT_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            variant="outlined"
+            startIcon={<TelegramIcon />}
+            sx={{ ml: 1, mb: "-2px", fontWeight: 600 }}
+          >
+            {TELEGRAM_BOT}
+          </Button>
+        </span>
+      );
+    } catch {
+      setBotError();
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleVerifyCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+    setErrorMsg(false);
+    const normalizedUsername = username.replace(/^@/, "");
+    if (!normalizedUsername || normalizedUsername.length < 5) {
+      setBotError();
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[A-Za-z0-9_]+$/.test(normalizedUsername)) {
+      setBotError();
+      setIsLoading(false);
+      return;
+    }
+    if (!code || code.length < 4 || code.length > 6 || !/^\d+$/.test(code)) {
+      setBotError();
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const response = await verifyTelegramCode({
+        username: normalizedUsername,
+        verification_code: code,
+      });
+      localStorage.setItem("access_token", response.access_token);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("username", normalizedUsername);
+      setIsAuthenticated(true);
+      setUsername(normalizedUsername);
+      setStep(null);
+      toast.success(`Добро пожаловать, ${normalizedUsername}!`);
+    } catch {
+      setBotError();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUsernameKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleRequestCode();
+    }
+  };
+
+  const handleCodeKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleVerifyCode();
+    }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
 
   const handleMenuClose = () => setAnchorEl(null);
 
@@ -125,11 +211,28 @@ const Header = () => {
     setIsAuthenticated(false);
     setUsername("");
     setAnchorEl(null);
-    hotToast.success("Logged out successfully");
+    setStep(null);
+    toast.success("Вы вышли из аккаунта");
   };
 
-  const handleToggleWidget = () => {
-    setShowWidget((prev) => !prev);
+  const handleToggleLogin = () => {
+    if (step === null) {
+      setStep("username");
+      setAnchorEl(null);
+      setErrorMsg(false);
+    } else {
+      setStep(null);
+      setUsername("");
+      setCode("");
+      setErrorMsg(false);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setStep(null);
+    setUsername("");
+    setCode("");
+    setErrorMsg(false);
   };
 
   return (
@@ -142,12 +245,16 @@ const Header = () => {
         sx={{
           height: 60,
           backdropFilter: "blur(10px)",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
+          backgroundColor: theme.palette.mode === "light"
+            ? "rgba(255, 255, 255, 0.8)"
+            : "rgba(30,30,30,0.90)",
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          zIndex: theme.zIndex.appBar,
         }}
       >
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ minHeight: "60px !important" }}>
+            {/* Логотип */}
             <Box
               component="a"
               href="/"
@@ -162,7 +269,7 @@ const Header = () => {
             >
               <img
                 src={logo}
-                alt="DAHA Logo"
+                alt="DAHA Логотип"
                 style={{
                   height: "40px",
                   width: "auto",
@@ -171,6 +278,7 @@ const Header = () => {
                 }}
               />
             </Box>
+            {/* Правая часть */}
             <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
               {isAuthenticated ? (
                 <>
@@ -180,10 +288,11 @@ const Header = () => {
                         width: 32,
                         height: 32,
                         bgcolor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText,
                         fontSize: "0.875rem",
                       }}
                     >
-                      {username.charAt(0).toUpperCase()}
+                      {username ? username.charAt(0).toUpperCase() : "?"}
                     </Avatar>
                   </IconButton>
                   <Menu
@@ -204,68 +313,160 @@ const Header = () => {
                       <Typography variant="body2">{username}</Typography>
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    <MenuItem onClick={handleLogout}>Выйти</MenuItem>
                   </Menu>
                 </>
               ) : (
                 <>
                   <Button
                     variant="contained"
-                    onClick={handleToggleWidget}
+                    onClick={handleToggleLogin}
                     sx={{
-                      boxShadow: "none",
-                      backgroundColor: "#000",
-                      color: "#fff",
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
                       textTransform: "none",
+                      fontWeight: 500,
                       borderRadius: "8px",
                       px: 3,
                       py: 0.8,
-                      fontSize: "0.875rem",
+                      fontSize: "0.95rem",
                       whiteSpace: "nowrap",
                       minWidth: "fit-content",
+                      boxShadow: "none",
+                      transition: "background-color 0.25s",
                       "&:hover": {
-                        backgroundColor: "#333",
+                        backgroundColor: theme.palette.primary.dark,
                         boxShadow: "none",
                       },
                     }}
                   >
-                    {showWidget ? "Скрыть" : "Вход"}
+                    {step == null ? "Вход" : "Скрыть"}
                   </Button>
-                  {showWidget && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 60,
-                        right: 16,
-                        bgcolor: "background.paper",
-                        p: 3,
-                        borderRadius: "12px",
-                        boxShadow: 3,
-                        zIndex: 9999,
-                        minWidth: { xs: "90vw", sm: "320px" },
-                        maxWidth: "100%",
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                        Вход через Telegram
-                      </Typography>
-                      <Box
-                        ref={widgetContainerRef}
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          minHeight: 48,
-                          width: "100%",
-                        }}
-                      />
+                  <Dialog
+                    open={Boolean(step)}
+                    onClose={handleDialogClose}
+                    maxWidth="xs"
+                    fullWidth
+                    PaperProps={{
+                      sx: {
+                        p: { xs: 2, sm: 3 },
+                        borderRadius: "14px",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+                        backgroundColor: theme.palette.background.paper,
+                        width: "100%",
+                        boxSizing: "border-box"
+                      },
+                    }}
+                  >
+                    <DialogTitle sx={{ textAlign: "center", fontWeight: 700, pb: 1.5 }}>
+                      Вход через Telegram
+                    </DialogTitle>
+                    <DialogContent sx={{ p: 0 }}>
+                      {errorMsg ? (
+                        <Box
+                          sx={{
+                            background: "#ffeded",
+                            borderRadius: 2,
+                            border: "1px solid #eb5656",
+                            p: 3,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            mb: 2,
+                          }}
+                        >
+                          <Typography variant="body1" color="error" sx={{ mb: 2, fontWeight: 500 }}>
+                            Не удалось войти.
+                          </Typography>
+                          {botStepInstructions}
+                        </Box>
+                      ) : (
+                        <>
+                          <Box sx={{ my: 2 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              Для входа сначала зарегистрируйтесь через бот в Telegram.
+                            </Typography>
+                          </Box>
+                          {step === "username" && (
+                            <Box component="form" onSubmit={handleRequestCode} sx={{ width: "100%", mt: 1 }}>
+                              <TextField
+                                inputRef={usernameInputRef}
+                                fullWidth
+                                label="Имя пользователя Telegram"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                onKeyDown={handleUsernameKeyDown}
+                                placeholder="Введите имя пользователя (например, @username)"
+                                variant="outlined"
+                                disabled={isLoading}
+                                sx={{ mb: 2 }}
+                              />
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                onClick={handleRequestCode}
+                                disabled={isLoading || !username}
+                                sx={{
+                                  backgroundColor: theme.palette.primary.main,
+                                  color: theme.palette.primary.contrastText,
+                                  textTransform: "none",
+                                  borderRadius: "8px",
+                                  py: 1.2,
+                                  fontWeight: 600,
+                                  "&:hover": { backgroundColor: theme.palette.primary.dark },
+                                  mb: 1,
+                                }}
+                              >
+                                {isLoading ? "Отправка..." : "Получить код"}
+                              </Button>
+                            </Box>
+                          )}
+                          {step === "code" && (
+                            <Box component="form" onSubmit={handleVerifyCode} sx={{ width: "100%", mt: 1 }}>
+                              <TextField
+                                inputRef={codeInputRef}
+                                fullWidth
+                                label="Код подтверждения"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                onKeyDown={handleCodeKeyDown}
+                                placeholder="Введите 4–6-значный код"
+                                variant="outlined"
+                                disabled={isLoading}
+                                sx={{ mb: 2 }}
+                              />
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                onClick={handleVerifyCode}
+                                disabled={isLoading || !code}
+                                sx={{
+                                  backgroundColor: theme.palette.primary.main,
+                                  color: theme.palette.primary.contrastText,
+                                  textTransform: "none",
+                                  borderRadius: "8px",
+                                  py: 1.2,
+                                  fontWeight: 600,
+                                  "&:hover": { backgroundColor: theme.palette.primary.dark },
+                                  mb: 1,
+                                }}
+                              >
+                                {isLoading ? "Проверка..." : "Войти"}
+                              </Button>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+                                Если возникли проблемы — воспользуйтесь ботом {TELEGRAM_BOT}.
+                              </Typography>
+                            </Box>
+                          )}
+                        </>
+                      )}
                       {isLoading && (
-                        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "center", mt: 1.5, mb: 0.5 }}>
                           <CircularProgress size={24} />
                         </Box>
                       )}
-                    </Box>
-                  )}
+                    </DialogContent>
+                  </Dialog>
                 </>
               )}
             </Box>

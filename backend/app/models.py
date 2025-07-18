@@ -5,7 +5,6 @@ from typing import List, Optional
 from sqlalchemy.dialects.postgresql import JSON
 from sqlmodel import Column, Field, Relationship, SQLModel, func
 
-
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
     USER = "user"
@@ -56,6 +55,9 @@ class User(SQLModel, table=True):
         sa_column_kwargs={"server_default": func.now()},
         nullable=False
     )
+
+    verification_code: Optional[str] = Field(default=None)
+    verification_code_expires_at: Optional[datetime] = Field(default=None)
 
     notifications: UserNotifications = Field(default=UserNotifications.NO, nullable=False)
 

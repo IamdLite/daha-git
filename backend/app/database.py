@@ -7,11 +7,23 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
+engine = None
 
-def create_db_and_tables():
+
+def init_db():
+    global engine
+    if not DATABASE_URL:
+        print("WARNING: DATABASE_URL is not set. Skipping database initialization.")
+        return
+
+    engine = create_engine(DATABASE_URL)
     SQLModel.metadata.create_all(engine)
+    print("Database initialized successfully.")
+
 
 def get_session():
+    if engine is None:
+        raise RuntimeError("Database is not initialized. Did the app startup event run?")
+
     with Session(engine) as session:
         yield session

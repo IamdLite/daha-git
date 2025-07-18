@@ -13,19 +13,18 @@ class CourseAPIClient:
     """
     Клиент для работы с API курсов
     """
-    """
     session = requests.Session()
-    session.headers.update({
+    session.headers.update({ 
             'Authorization': f'DREAM apikey="{settings.API_KEY}"',
             'Content-Type': 'application/json',
             'User-Agent': 'DAHA-Bot/1.0'
-    })
-    """
+    }) # TODO look into upon update
+
 
     def get_courses(self,
                     category_id: Optional[int] = None,
                     level: Optional[str] = None,
-                    grade_id: Optional[int] = None,
+                    grade_id: Optional[dict] = None,
                     skip: int = 0,
                     limit: int = 100) -> Dict[str, Any]:
         """
@@ -46,12 +45,25 @@ class CourseAPIClient:
 
         # Формируем параметры запроса
         params = {}
+        
         if category_id is not None:
             params['category_id'] = category_id
+        else:
+            params['category_id'] = {}
+
         if level is not None:
             params['level'] = level
+        else:
+            params['level'] = {}
+            
         if grade_id is not None:
-            params['grade_id'] = grade_id
+            params['grade'] = grade
+        else:
+            params['grade'] = {
+                "id":0,
+                "level":0
+                }
+
         if skip > 0:
             params['skip'] = skip
         if limit != 100:
@@ -127,6 +139,41 @@ class CourseAPIClient:
                 break
 
         return all_courses
+
+    def register_or_update_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Sends user data and their saved filters to the API.
+        """
+        endpoint = f"{settings.BASE_URL}/api/bot/user/register-or-update"
+        try:
+            response = self.session.post(endpoint, json=user_data)
+            response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+            logger.info(f"Successfully registered/updated user {user_data.get('id')}. Response: {response.json()}")
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP Error registering/updating user: {e.response.text}")
+            raise APIError(f"Failed to register or update user. Status code: {e.response.status_code}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request Error registering/updating user: {e}")
+            raise APIError("A network error occurred while communicating with the API.")
+    
+    def get_all_users_with_filters(self) -> list:
+        """
+        Retrieves all users and their saved filters from the API.
+        NOTE: This assumes a new backend endpoint GET /api/users exists.
+        """
+        endpoint = f"{settings.BASE_URL}/api/users/?skip=0&limit=100"  # TODO change
+        try:
+            response = self.session.get(endpoint)
+            response.raise_for_status()
+            # Expecting a list of users, e.g., [{'id': 123, 'saved_filters': {...}}, ...]
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP Error fetching users: {e.response.text}")
+            raise APIError(f"Failed to fetch users. Status code: {e.response.status_code}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request Error fetching users: {e}")
+            raise APIError("A network error occurred while fetching users.")
 
 
 class APIError(Exception):

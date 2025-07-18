@@ -5,6 +5,22 @@ from pydantic import BaseModel, Field as PydanticField
 from sqlmodel import SQLModel
 from .models import UserRole, CourseLevel, Grade, Category, Course, User, UserNotifications
 
+class BotUserUpdate(BaseModel):
+    id: int
+    username: Optional[str] = None
+    saved_filters: "SavedFilters"
+    notifications: UserNotifications
+
+class LoginRequest(SQLModel):
+    username: str
+
+class VerifyCodeRequest(SQLModel):
+    username: str
+    verification_code: str
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str
 
 class CourseCount(SQLModel):
     total: int
@@ -102,6 +118,11 @@ class TokenData(SQLModel):
 class UserPreferencesUpdate(SQLModel):
     saved_filters: SavedFilters
     notifications: UserNotifications
+
+class AdminSetRequest(BaseModel):
+    user_id: Optional[int] = None
+    username: Optional[str] = None
+    code: str = PydanticField(..., description="Secret code required to grant admin privileges")
 
 CourseRead.model_rebuild()
 CategoryReadWithCourses.model_rebuild()

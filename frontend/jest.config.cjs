@@ -5,6 +5,7 @@ module.exports = {
   moduleNameMapper: {
     // Optionally mock static assets like images if you import them in your components
     '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js',
+    "^react-router-dom$": "<rootDir>/node_modules/react-router-dom",
   },
     transformIgnorePatterns: [
     'node_modules/(?!(axios)/)', // <-- transform axios package

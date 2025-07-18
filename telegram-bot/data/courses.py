@@ -46,7 +46,10 @@ def _convert_filters_to_api_params(filters: Dict[str, Set]) -> Dict[str, Any]:
             if isinstance(grade, str) and grade.isdigit():
                 grade = int(grade)
             if grade in GRADE_TO_ID:
-                api_params['grade_id'] = GRADE_TO_ID[grade]
+                api_params['grade'] = {
+                    "id": GRADE_TO_ID[grade],
+                    "level": grade
+                    }
                 break
 
     return api_params
@@ -77,6 +80,7 @@ class CourseFilter:
         """
         try:
             # Конвертируем фильтры в параметры API
+            logger.info(filters)
             api_params = _convert_filters_to_api_params(filters)
 
             logger.info(f"Запрос курсов с параметрами: {api_params}")
@@ -149,10 +153,8 @@ class CourseFilter:
             f"Класс(-ы) 🏫:" + grade_list + "\n"
             f"Сложность 🎚️: {course['level']}\n"
             f"Даты 🗓️: {course['start_date']} - {course['end_date']}\n"
-            f"Описание 📜:\n\n{course['description']}\n"
+            f"Описание 📜:\n\n{course['description']}\n\n"
             f"Ссылка ↘️\n"
-            
-            # make multiple categories possible
         )
 
 # Глобальный экземпляр сервиса

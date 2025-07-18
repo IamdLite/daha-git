@@ -1,6 +1,7 @@
 services:
   backend:
     build: ./
+    container_name: fastproject
     ports:
       - "8000:8000"
     volumes:
@@ -8,9 +9,11 @@ services:
     working_dir: /app
     environment:
       - DATABASE_URL=postgresql://my_user:a-very-strong-password@db:5432/my_courses_db
+      - ADMIN_SET_CODE=${ADMIN_SET_CODE}
       - SECRET_KEY=${SECRET_KEY}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - APP_ENV=development
+      - BOT_COMMUNICATION_SECRET=${BOT_COMMUNICATION_SECRET}
     depends_on:
       - db
 

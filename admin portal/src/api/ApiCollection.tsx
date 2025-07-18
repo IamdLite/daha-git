@@ -170,19 +170,22 @@
 // };
 
 // src/api/APICollection.ts
-import { authenticatedFetch } from './auth';
+// src/api/APICollection.ts
 
-interface Category {
+import { fetchWithAuth } from '../utils/api';
+
+// Types
+export interface Category {
   id: number;
   name: string;
 }
 
-interface Grade {
+export interface Grade {
   id: number;
   level: number;
 }
 
-interface Course {
+export interface Course {
   id: number;
   title: string;
   description: string;
@@ -197,7 +200,7 @@ interface Course {
   grades: Grade[];
 }
 
-interface CourseInput {
+export interface CourseInput {
   title: string;
   description: string;
   url: string;
@@ -209,14 +212,16 @@ interface CourseInput {
   end_date: string;
 }
 
-export const fetchCourses = async (skip: number = 0, limit: number = 10): Promise<Course[]> => {
-  const response = await authenticatedFetch(
+// Fetch a page of courses
+export const fetchCourses = async (
+  skip: number = 0,
+  limit: number = 100
+): Promise<Course[]> => {
+  const response = await fetchWithAuth(
     `https://daha.linkpc.net/api/courses/?skip=${skip}&limit=${limit}`,
     {
       method: 'GET',
-      headers: {
-        accept: 'application/json',
-      },
+      headers: { accept: 'application/json' },
     }
   );
   if (!response.ok) {
@@ -226,68 +231,82 @@ export const fetchCourses = async (skip: number = 0, limit: number = 10): Promis
   return response.json();
 };
 
+// Fetch total course count
+// export const fetchCoursesCount = async (): Promise<number> => {
+//   const resp = await fetchWithAuth('https://daha.linkpc.net/api/courses/count?skip=0&limit=100', {
+//     method: 'GET',
+//     headers: { accept: 'application/json' },
+//   });
+//   if (!resp.ok) throw new Error('Failed to fetch course count');
+//   const { count } = await resp.json();
+//   if (typeof count !== 'number') throw new Error('Bad count value');
+//   return count;
+// };
+export const fetchCoursesCount = async (): Promise<number> => {
+  const resp = await fetchWithAuth('https://daha.linkpc.net/api/courses/count?skip=0&limit=100', {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+  if (!resp.ok) throw new Error('Failed to fetch course count');
+  const { total } = await resp.json();
+  if (typeof total !== 'number') throw new Error('Bad total value from /courses/count');
+  return total;
+};
+
+
+// Fetch *all* courses, via paging loop
+export const fetchAllCourses = async (): Promise<Course[]> => {
+  const count = await fetchCoursesCount();
+  const LIMIT = 100;
+  const promises: Promise<Course[]>[] = [];
+  for (let skip = 0; skip < count; skip += LIMIT) {
+    promises.push(fetchCourses(skip, LIMIT));
+  }
+  const results = await Promise.all(promises);
+  return results.flat();
+};
+
+// CRUD -- add, update, delete
 export const addCourse = async (courseData: CourseInput): Promise<Course> => {
-  console.log('Sending course data:', JSON.stringify(courseData, null, 2)); // Debug log
-  const response = await authenticatedFetch('https://daha.linkpc.net/api/courses/', {
+  const response = await fetchWithAuth('https://daha.linkpc.net/api/courses/', {
     method: 'POST',
     headers: {
       accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      title: courseData.title,
-      description: courseData.description,
-      url: courseData.url,
-      provider: courseData.provider,
-      category_id: courseData.category_id,
-      level: courseData.level,
-      grade_ids: courseData.grade_ids,
-      start_date: courseData.start_date,
-      end_date: courseData.end_date,
+      ...courseData,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }),
   });
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
-    throw new Error(`Failed to add course: ${response.status} ${response.statusText} - ${errorText} (grade_ids: ${courseData.grade_ids})`);
+    throw new Error(`Failed to add course: ${response.status} ${response.statusText} - ${errorText}`);
   }
   return response.json();
 };
 
 export const updateCourse = async (id: number, courseData: CourseInput): Promise<Course> => {
-  console.log('Updating course data:', JSON.stringify(courseData, null, 2)); // Debug log
-  const response = await authenticatedFetch(`https://daha.linkpc.net/api/courses/${id}`, {
+  const response = await fetchWithAuth(`https://daha.linkpc.net/api/courses/${id}`, {
     method: 'PATCH',
     headers: {
       accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      title: courseData.title,
-      description: courseData.description,
-      url: courseData.url,
-      provider: courseData.provider,
-      category_id: courseData.category_id,
-      level: courseData.level,
-      grade_ids: courseData.grade_ids,
-      start_date: courseData.start_date,
-      end_date: courseData.end_date,
-    }),
+    body: JSON.stringify({ ...courseData }),
   });
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
-    throw new Error(`Failed to update course: ${response.status} ${response.statusText} - ${errorText} (grade_ids: ${courseData.grade_ids})`);
+    throw new Error(`Failed to update course: ${response.status} ${response.statusText} - ${errorText}`);
   }
   return response.json();
 };
 
 export const deleteCourse = async (id: number): Promise<void> => {
-  const response = await authenticatedFetch(`https://daha.linkpc.net/api/courses/${id}`, {
+  const response = await fetchWithAuth(`https://daha.linkpc.net/api/courses/${id}`, {
     method: 'DELETE',
-    headers: {
-      accept: 'application/json',
-    },
+    headers: { accept: 'application/json' },
   });
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
@@ -295,20 +314,26 @@ export const deleteCourse = async (id: number): Promise<void> => {
   }
 };
 
+// Static fallback data for categories/grades
 export const fetchCategories = async (): Promise<Category[]> => {
   return [
-    { id: 1, name: 'Искусственный интеллект' },
-    { id: 2, name: 'Программирование' },
-    { id: 3, name: 'Информационная безопасность' },
-    { id: 4, name: 'Робототехника' },
-    { id: 5, name: 'Предпринимательство' },
-     { id: 6, name:  'Финансовая грамотность' },
-      { id: 7, name: 'Наука' },
+    { id: 1, name: 'AI' },
+    { id: 2, name: 'Programming' },
+    { id: 3, name: 'Security' },
+    { id: 4, name: 'Robotics' },
+    { id: 5, name: 'Entrepreneurship' },
+    { id: 6, name: 'Financial Literacy' },
+    { id: 7, name: 'Science' },
   ];
+  /*
+  // Uncomment if/when real endpoint is available:
+  // const response = await fetchWithAuth('https://daha.linkpc.net/api/categories', { ... });
+  // if (!response.ok) throw new Error(`Failed to fetch categories...`);
+  // return response.json();
+  */
 };
 
 export const fetchGrades = async (): Promise<Grade[]> => {
-  console.log('Fetching grades: [{ id: 1, level: 7 }, ..., { id: 5, level: 11 }]'); // Debug log
   return [
     { id: 1, level: 7 },
     { id: 2, level: 8 },
@@ -316,18 +341,10 @@ export const fetchGrades = async (): Promise<Grade[]> => {
     { id: 4, level: 10 },
     { id: 5, level: 11 },
   ];
-  // If /api/grades exists, uncomment and adjust:
   /*
-  const response = await authenticatedFetch('https://daha.linkpc.net/api/grades', {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-    },
-  });
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unknown error');
-    throw new Error(`Failed to fetch grades: ${response.status} ${response.statusText} - ${errorText}`);
-  }
-  return response.json();
+  // Uncomment if/when real endpoint is available:
+  // const response = await fetchWithAuth('https://daha.linkpc.net/api/grades', { ... });
+  // if (!response.ok) throw new Error(...);
+  // return response.json();
   */
 };

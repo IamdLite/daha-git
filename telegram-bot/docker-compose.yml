@@ -9,6 +9,7 @@ services:
       - USER_DATA_API_ENDPOINT=${USER_DATA_API_ENDPOINT}
       - API_TOKEN=${API_TOKEN}
       - ADMIN_USER_IDS=${ADMIN_USER_IDS}
+      - BASE_URL=${BASE_URL}
     volumes:
       - ./logs:/logs
     networks:

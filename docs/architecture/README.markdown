@@ -100,7 +100,7 @@ For customer deployment:
 The Daha platform prioritizes quality to ensure a reliable, efficient, and user-friendly experience for high school students. The following subsections detail the quality assurance processes, including quality attribute scenarios and automated testing.
 
 ### Quality Attribute Scenarios
-Quality characteristics critical to the customer are documented in [docs/quality-assurance/quality-attribute-scenarios.markdown](docs/quality-assurance/quality-attribute-scenarios.markdown). This file outlines three ISO 25010 sub-characteristics—Functional Correctness, Time Behavior, and Learnability—explaining their importance and providing tests in the Quality Attribute Scenario format, along with execution methods.
+Quality characteristics critical to the customer are documented in [docs/quality-attributes/quality-attribute-scenarios.markdown](../quality-attributes/quality-attribute-scenarios.markdown). This file outlines three ISO 25010 sub-characteristics—Functional Correctness, Time Behavior, and Learnability—explaining their importance and providing tests in the Quality Attribute Scenario format, along with execution methods.
 
 ### Automated Tests
 The platform employs a comprehensive automated testing suite to maintain quality:

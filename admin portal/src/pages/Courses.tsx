@@ -1,24 +1,23 @@
 // src/pages/Courses.tsx
-import  { useEffect, useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
 import toast from 'react-hot-toast';
 import { HiOutlineEye, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2';
 import CourseForm from '../components/courseForm';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchCourses, addCourse, updateCourse, deleteCourse, fetchCategories, fetchGrades } from '../api/ApiCollection';
+import { fetchAllCourses, addCourse, updateCourse, deleteCourse, fetchCategories, fetchGrades } from '../api/ApiCollection';
 import { useNavigate } from 'react-router-dom';
 
 interface Category {
   id: number;
   name: string;
 }
-
 interface Grade {
   id: number;
   level: number;
 }
-
 interface Course {
   id: number;
   title: string;
@@ -49,8 +48,9 @@ const Courses = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        // Fetch all data in parallel
         const [courses, fetchedCategories, fetchedGrades] = await Promise.all([
-          fetchCourses(0, 100),
+          fetchAllCourses(),
           fetchCategories(),
           fetchGrades(),
         ]);
@@ -76,7 +76,6 @@ const Courses = () => {
   }, [logout, navigate]);
 
   const handleAddCourse = async (courseData: any) => {
-    console.log('Submitting course data:', courseData); // Debug log
     try {
       const newCourse = await addCourse({
         title: courseData.title,
@@ -106,7 +105,6 @@ const Courses = () => {
 
   const handleEditCourse = async (courseData: any) => {
     if (!editingCourse) return;
-    console.log('Editing course data:', courseData); // Debug log
     try {
       const updatedCourse = await updateCourse(editingCourse.id, {
         title: courseData.title,
@@ -147,9 +145,7 @@ const Courses = () => {
   };
 
   const handleEditClick = (course: Course) => {
-    const validGrades = course.grades
-      ?.map((g: Grade) => g.id)
-      .filter((id: number) => grades.some((grade) => grade.id === id)) || [];
+    const validGrades = course.grades?.map((g: Grade) => g.id).filter((id: number) => grades.some((grade) => grade.id === id)) || [];
     setEditingCourse({
       ...course,
       categoryId: course.category?.id?.toString() || '',
@@ -228,10 +224,7 @@ const Courses = () => {
         <div className="flex flex-wrap gap-1">
           {params.row.grades?.length ? (
             params.row.grades.map((grade: Grade, index: number) => (
-              <div
-                className="rounded-full bg-base-200 dark:bg-base-300 px-1.5 py-0.5 text-xs"
-                key={index}
-              >
+              <div className="rounded-full bg-base-200 dark:bg-base-300 px-1.5 py-0.5 text-xs" key={index}>
                 {grade.level}
               </div>
             ))

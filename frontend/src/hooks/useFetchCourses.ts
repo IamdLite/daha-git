@@ -17,7 +17,9 @@ export const useFetchCourses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL;
+                const apiUrl = axios.create({
+             baseURL: process.env.REACT_APP_API_URL || 'https://daha.linkpc.net'
+        });
         console.log("Fetching courses from:", `${apiUrl}/api/courses`);
         
         // Add CORS headers to the request

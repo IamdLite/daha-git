@@ -1,0 +1,29 @@
+site_name: DAHA Documentation
+repo_url: https://gitlab.pg.innopolis.university/daha-40/daha
+site_url: https://daha-471595.pages.pg.innopolis.university/
+theme:
+  name: material
+nav:
+  - Home: README.markdown
+  - Project Description: project-description.markdown
+  - Context Diagram: context-diagram.markdown
+  - Usage: usage.markdown
+  - Roadmap: roadmap.markdown
+  - Contributing: CONTRIBUTING.markdown
+  - Quality Assurance:
+      - Quality Attributes: quality-attributes/quality-attribute-scenarios.markdown
+      - Automated Tests: quality-assurance/automated-tests.markdown
+      - User Acceptance Tests: quality-assurance/user-acceptance-tests.markdown
+  - Architecture:
+      - Overview: architecture/README.markdown
+      - Tech Stack: architecture/architecture.markdown
+  - Build and Deployment:
+      - Continuous Integration: automation/continuous-integration.markdown
+      - Continuous Delivery: automation/continuous-delivery.markdown
+  - Installation: installation.markdown
+  - License: LICENSE.markdown
+  - Contributing: CONTRIBUTING.markdown
+  
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji

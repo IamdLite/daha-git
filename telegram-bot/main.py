@@ -1,158 +1,138 @@
 import asyncio
 import logging
 import os
-import ssl
 from contextlib import asynccontextmanager
 from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
 from telegram import Update, InputFile
+from pydantic import BaseModel
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 
 from configs.settings import settings
 from bot.handlers import BotHandlers
-from data.user_storage import user_storage
+from utils.notifications import run_scheduler, send_auth_code
 
-# Проверяем настройки
-settings.validate()
+# Assuming you have a validate method in your settings
+if hasattr(settings, 'validate'):
+    settings.validate()
 
 # Настройка логирования для Docker
 def setup_file_handler():
     logs_dir = "/logs"
     log_file = os.path.join(logs_dir, "bot.log")
-    
     try:
-        # Ensure directory exists
         os.makedirs(logs_dir, exist_ok=True)
-        
-        # Test write permissions by attempting to create/write to the log file
         with open(log_file, 'a') as test_file:
-            test_file.write("")  # Test write access
-            
+            test_file.write("")
         return logging.FileHandler(log_file)
-        
     except (PermissionError, OSError) as e:
-        print(f"Cannot write to log file {log_file}: {e}")
-        print("Falling back to console logging")
+        print(f"Cannot write to log file {log_file}: {e}. Falling back to console logging.")
         return logging.StreamHandler()
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        setup_file_handler(),  # This will handle the file vs console decision
-        logging.StreamHandler()  # Console output
-    ]
+    handlers=[setup_file_handler(), logging.StreamHandler()]
 )
-
 logger = logging.getLogger(__name__)
 
-# Создаем приложение Telegram бота
 ptb_app = Application.builder().token(settings.BOT_TOKEN).build()
 
 # Регистрируем обработчики команд
 ptb_app.add_handler(CommandHandler("start", BotHandlers.start_command))
 ptb_app.add_handler(CommandHandler("set_filters", BotHandlers.set_filters_command))
-ptb_app.add_handler(CommandHandler("register", BotHandlers.set_filters_command))
 ptb_app.add_handler(CommandHandler("website", BotHandlers.website_command))
-ptb_app.add_handler(CommandHandler("package", BotHandlers.manual_package_command))
 ptb_app.add_handler(CallbackQueryHandler(BotHandlers.button_callback))
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Управление жизненным циклом приложения"""
-    # Запуск
     await ptb_app.initialize()
     logger.info("PTB приложение инициализировано.")
+    
+    # --- KEY CHANGE: PASS THE PTB_APP INSTANCE TO THE SCHEDULER ---
+    # This "injects" the dependency and breaks the circular import.
+    asyncio.create_task(run_scheduler(ptb_app))
+    logger.info("Notification scheduler task created.")
 
     webhook_url = f"{settings.WEBHOOK_URL}/webhook"
     certificate_path = "/app/certificate.crt"
     
     try:
-        # Read certificate file content
         with open(certificate_path, 'rb') as cert_file:
-            certificate_data = cert_file.read()
-        
-        # Create InputFile from bytes
-        certificate = InputFile(certificate_data, filename="cert.pem")
-        
+            certificate = InputFile(cert_file.read(), filename="cert.pem")
         await ptb_app.bot.set_webhook(
             url=webhook_url,
             certificate=certificate,
-            allowed_updates=Update.ALL_TYPES,
-            drop_pending_updates=False
+            allowed_updates=Update.ALL_TYPES
         )
-        
-        logger.info(f"Webhook установлен на: {webhook_url} с пользовательским сертификатом и сбросом ожидающих обновлений")
-        
+        logger.info(f"Webhook установлен на: {webhook_url} с пользовательским сертификатом")
     except FileNotFoundError:
-        logger.error(f"Сертификат не найден: {certificate_path}")
-        # Fallback to webhook without certificate
+        logger.warning(f"Сертификат не найден: {certificate_path}. Устанавливаю webhook без сертификата.")
         await ptb_app.bot.set_webhook(url=webhook_url, allowed_updates=Update.ALL_TYPES)
-        logger.info(f"Webhook установлен на: {webhook_url} без сертификата")
     except Exception as e:
-        logger.error(f"Ошибка чтения сертификата: {e}")
-        # Fallback to webhook without certificate
+        logger.error(f"Ошибка установки webhook с сертификатом: {e}. Устанавливаю webhook без сертификата.")
         await ptb_app.bot.set_webhook(url=webhook_url, allowed_updates=Update.ALL_TYPES)
-        logger.info(f"Webhook установлен на: {webhook_url} без сертификата")
 
     await ptb_app.start()
-    logger.info("PTB приложение запущено в Docker контейнере.")
-    logger.info("Упаковщик настроен для работы по требованию (при сохранении фильтров)")
-
+    logger.info("PTB приложение запущено.")
     yield
-
-    # Остановка
     logger.info("Остановка PTB приложения...")
     await ptb_app.stop()
     await ptb_app.bot.delete_webhook()
     await ptb_app.shutdown()
     logger.info("PTB приложение остановлено.")
 
-
 # Создаем FastAPI приложение
 app = FastAPI(lifespan=lifespan, title="DAHA Telegram Bot")
-
 
 @app.post("/webhook")
 async def process_update(request: Request):
     """Обработка обновлений от Telegram"""
-    # Add this line to log ALL incoming requests
-    logger.info(f"Webhook endpoint hit from IP: {request.client.host}")
-    
     try:
         update_data = await request.json()
-        
-        # Validate that this looks like a Telegram update
-        if not isinstance(update_data, dict) or 'update_id' not in update_data:
-            logger.warning("Invalid webhook data format")
-            return {"status": "error", "message": "Invalid update format"}
-        
         update = Update.de_json(update_data, ptb_app.bot)
         if update:
             await ptb_app.process_update(update)
-        else:
-            logger.warning("Failed to create Update object from data")
-        
         return {"status": "ok"}
-        
     except Exception as e:
         logger.error(f"Webhook processing error: {e}")
         return {"status": "error", "message": str(e)}
 
+class AuthPayload(BaseModel):
+    code: int
+    user_id: int
+    api_token: str
 
-@app.get("/package_status")
-async def package_status():
-    """Эндпоинт для проверки статуса упаковщика"""
-    return {
-        "total_users": user_storage.get_user_count(),
-        "packager_mode": "on_demand",
-        "container": "docker",
-        "last_check": datetime.now().isoformat()
-    }
+@app.post('/auth/send-code')
+async def send_verification_code(payload: AuthPayload):
+    """
+    Receives a verification code and user_id, validates the API token,
+    and sends the code to the user via Telegram.
+    """
+    if payload.api_token != settings.API_TOKEN:
+        logger.warning("Unauthorized attempt to use /auth/send-code.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Token",
+        )
 
+    success = await send_auth_code(
+        app=ptb_app,
+        user_id=payload.user_id,
+        code=payload.code
+    )
+
+    if success:
+        return {'status': 'ok', 'message': 'Authentication code sent successfully.'}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send authentication code.",
+        )
 
 @app.get("/health")
 async def health_check():
@@ -160,8 +140,7 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "users_count": user_storage.get_user_count(),
-        "environment": "docker"
+        "bot_status": "running"
     }
 
 if __name__ == '__main__':

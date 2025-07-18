@@ -20,9 +20,11 @@ class BotKeyboards:
             [InlineKeyboardButton("Предметы", callback_data="filter_subjects")],
             [InlineKeyboardButton("Сложность", callback_data="filter_difficulty")],
             [InlineKeyboardButton("Класс", callback_data="filter_grade")],
-            [InlineKeyboardButton("✅ Найти курсы", callback_data="save_all_filters")],
+            [InlineKeyboardButton("✅ Найти курсы", callback_data="browse")],
+            [InlineKeyboardButton("💾 Сохранить Фильтры", callback_data="save_all_filters")],
         ]
         return InlineKeyboardMarkup(keyboard)
+
 
     @staticmethod
     def get_filter_options_keyboard(filter_type: str, user_filters: set) -> InlineKeyboardMarkup:

@@ -9,17 +9,17 @@ export const registerUser = async (userData: {
   username: string;
   first_name?: string;
 }): Promise<User> => {
-  const response = await fetch('http://daha.linkpc.net/api/users', {
-    method: 'POST',
+  const response = await fetch("http://daha.linkpc.net/api/users", {
+    method: "POST",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
+      "Accept": "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(userData),
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unknown error');
+    const errorText = await response.text().catch(() => "Unknown error");
     throw new Error(`Failed to register user: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
