@@ -1,4 +1,3 @@
-import { jwtDecode } from 'jwt-decode';
 
 // Use Vite environment variables (or static fallback)
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
